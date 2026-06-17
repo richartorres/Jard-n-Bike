@@ -10,7 +10,7 @@ class BicicletaController extends Controller
     /**
      * Simula el escaneo de un código QR y valida restricciones del negocio (SENA).
      */
-    public function consultarPorQr($codigo_qr)
+   public function consultarPorQr(string $codigo_qr)
     {
         // Buscamos la bicicleta por su código QR
         $bicicleta = Bicicleta::where('codigo_qr', $codigo_qr)->first();

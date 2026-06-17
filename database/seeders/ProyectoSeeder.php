@@ -53,7 +53,7 @@ class ProyectoSeeder extends Seeder
                 'codigo_qr' => 'QR-BICI-045',
                 'modelo' => 'E-Bike Urban Pro',
                 'num_serie' => 'SN-EB987654321',
-                'nivel_bateria' => 95,
+                'nivel_bateria' => 15,
                 'estado' => 'Disponible',
                 'kilometraje' => 120.50,
                 'created_at' => now(),
