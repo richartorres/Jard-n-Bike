@@ -20,3 +20,4 @@ Route::post('/alquileres/iniciar', [AlquilerController::class, 'store']);
 Route::get('/alquileres', [AlquilerController::class, 'index']);
 Route::put('/alquileres/finalizar/{id_alquiler}', [AlquilerController::class, 'finalizar']);
 Route::get('/usuarios/{user_id}/alquileres', [AlquilerController::class, 'historialUsuario']);
+Route::get('/estaciones', [EstacionController::class, 'index']);
