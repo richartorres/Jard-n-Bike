@@ -39,6 +39,11 @@ Route::get('/viaje-activo', function () {
     return view('viaje_activo');
 });
 
-Route::get('/admi', function () {
+Route::get('/admin', function () {
     return view('admi');
-});
+})->name('admin');
+
+Route::get('/landing', function () {
+    return view('landing');
+})->name('landing');
+

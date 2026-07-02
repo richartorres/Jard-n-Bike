@@ -24,7 +24,11 @@
                     <p class="text-xs font-semibold tracking-wider text-[#938F99]">ANTIOQUIA · CO</p>
                 </div>
             </div>
-            <button class="border border-gray-200 px-4 py-1.5 rounded-full text-xs font-medium text-gray-700 bg-white shadow-sm">Admin</button>
+                 <a href="{{ route('admin') }}">
+                <button class="border border-gray-200 px-4 py-1.5 rounded-full text-xs font-medium text-gray-700 bg-white shadow-sm">
+                    Admin
+                </button>
+                </a>
         </div>
 
         <div class="bg-gradient-to-r from-[#115C39] to-[#257A3C] text-white rounded-[2rem] p-8 mb-6 shadow-lg">

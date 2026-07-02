@@ -27,7 +27,7 @@
         <div class="flex items-center gap-3 pt-6 border-t border-emerald-900">
             <div class="bg-amber-400 w-8 h-8 rounded-full flex items-center justify-center font-bold text-[#0A3D27]">MA</div>
             <div class="text-xs">
-                <p class="font-bold">María Álvarez</p>
+                <p class="font-bold">Richar Torres</p>
                 <p class="text-emerald-300">Operadora · Jardín</p>
             </div>
         </div>
@@ -39,10 +39,13 @@
                 <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold">Panel Operativo</p>
                 <h2 class="text-2xl font-bold text-gray-900">Buenos días, María 🍃</h2>
             </div>
-            <div class="flex items-center gap-4">
-                <input type="text" placeholder="Buscar bici, usuario o estación..." class="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm w-64 shadow-sm">
-                <button class="bg-white border px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">Ver app cliente</button>
-            </div>
+
+                <a href="{{ route('landing') }}">
+                    <button class="bg-white border px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">
+                        Ver app cliente
+                    </button>
+                </a>
+                
         </header>
 
         <div class="grid grid-cols-4 gap-6 mb-8">
