@@ -24,11 +24,11 @@
                     <p class="text-xs font-semibold tracking-wider text-[#938F99]">ANTIOQUIA · CO</p>
                 </div>
             </div>
-                 <a href="{{ route('admin') }}">
+            <a href="{{ url('/admin') }}">
                 <button class="border border-gray-200 px-4 py-1.5 rounded-full text-xs font-medium text-gray-700 bg-white shadow-sm">
                     Admin
                 </button>
-                </a>
+            </a>
         </div>
 
         <div class="bg-gradient-to-r from-[#115C39] to-[#257A3C] text-white rounded-[2rem] p-8 mb-6 shadow-lg">
@@ -80,15 +80,15 @@
             </div>
         </div>
 
-        <a href="/registro" class="w-full bg-[#FFBC00] hover:bg-[#F0B000] transition py-4 rounded-2xl font-bold shadow-[0_4px_12px_rgba(255,188,0,0.25)] text-[#101828] mb-3 flex items-center justify-center gap-2">
-        Crear cuenta
-         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-         <path d="M10.78 7.22L7 3.44L8.06 2.38L13.68 8L8.06 13.62L7 12.56L10.78 8.78H2.32V7.22H10.78Z" fill="#101828"/>
+        <a href="{{ url('/registro') }}" class="w-full bg-[#FFBC00] hover:bg-[#F0B000] transition py-4 rounded-2xl font-bold shadow-[0_4px_12px_rgba(255,188,0,0.25)] text-[#101828] mb-3 flex items-center justify-center gap-2">
+            Crear cuenta
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.78 7.22L7 3.44L8.06 2.38L13.68 8L8.06 13.62L7 12.56L10.78 8.78H2.32V7.22H10.78Z" fill="#101828"/>
             </svg>
-         </a>
+        </a>
        
-         <a href="/login" class="block w-full text-center py-4 rounded-2xl font-bold text-[#101828] bg-white border border-[#D0D5DD] hover:bg-gray-50 transition shadow-sm">
-             Ya tengo cuenta, iniciar sesión
+        <a href="{{ url('/login') }}" class="block w-full text-center py-4 rounded-2xl font-bold text-[#101828] bg-white border border-[#D0D5DD] hover:bg-gray-50 transition shadow-sm">
+            Ya tengo cuenta, iniciar sesión
         </a>
 
         <p class="text-center text-xs text-[#667085] mt-6">Tarifa $4.000 COP · USD $1 cada 15 minutos</p>

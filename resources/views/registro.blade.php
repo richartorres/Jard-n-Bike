@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Jardín Bike</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Inter', sans-serif; }</style>
@@ -15,13 +18,14 @@
                     <path d="M10 15.833L4.167 10L10 4.167" stroke="#101828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </button>
-            <span class="text-sm text-gray-500 font-medium">Paso 1 de 2</span>
+            
         </div>
 
         <h1 class="text-2xl font-bold text-[#101828] mb-1">Crea tu cuenta</h1>
         <p class="text-gray-500 mb-8">Tomará menos de un minuto.</p>
 
         <div class="space-y-5">
+            <!-- Campos de formulario -->
             <div>
                 <label class="block text-xs font-semibold text-[#344054] mb-1.5 uppercase tracking-wide">Nombre completo</label>
                 <div class="relative flex items-center">
@@ -52,6 +56,7 @@
                 </div>
             </div>
 
+            <!-- Tarjeta de garantía -->
             <div class="bg-white rounded-3xl border border-gray-200 p-5 shadow-sm">
                 <div class="flex justify-between items-start mb-4">
                     <div class="flex gap-3">
@@ -63,9 +68,6 @@
                             <p class="text-xs text-gray-500">No hacemos cobros sin tu autorización.</p>
                         </div>
                     </div>
-                    <span class="text-[#98A2B3]">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                    </span>
                 </div>
                 
                 <div class="bg-gradient-to-br from-[#115C39] to-[#257A3C] rounded-2xl p-5 text-white shadow-lg">
@@ -85,6 +87,7 @@
                 </button>
             </div>
 
+            <!-- Seguridad -->
             <div class="flex gap-3 bg-[#F9FAFB] p-4 rounded-2xl border border-gray-100 items-start">
                 <span class="text-[#105B3A] mt-0.5">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
@@ -92,9 +95,10 @@
                 <p class="text-xs text-gray-600 leading-relaxed">Tus datos viajan cifrados. Solo cobramos en caso de daño o pérdida según los términos.</p>
             </div>
 
-           <a href="/login" class="block w-full text-center py-4 rounded-2xl font-bold text-[#101828] bg-[#FFBC00] hover:bg-[#F0B000] transition shadow-[0_4px_12px_rgba(255,188,0,0.25)]">
-    Comfirmar y Continuar
-</a>
+            <!-- Botón de confirmar -->
+            <a href="{{ url('/login') }}" class="block w-full text-center py-4 rounded-2xl font-bold text-[#101828] bg-[#FFBC00] hover:bg-[#F0B000] transition shadow-[0_4px_12px_rgba(255,188,0,0.25)]">
+                Confirmar y Continuar
+            </a>
 
         </div>
     </div>

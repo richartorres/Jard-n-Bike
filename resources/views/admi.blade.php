@@ -16,19 +16,19 @@
             </div>
         </div>
         <nav class="space-y-4 flex-1">
-            <a href="#" class="flex items-center gap-3 bg-emerald-900/50 p-3 rounded-xl text-sm font-medium">📊 Dashboard</a>
-            <a href="#" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">🚲 Inventario</a>
-            <a href="#" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">📍 Estaciones</a>
-            <a href="#" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">👥 Usuarios</a>
-            <a href="#" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">⚠️ Alertas</a>
-            <a href="#" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">📈 Reportes</a>
-            <a href="#" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">⚙️ Ajustes</a>
+            <a href="{{ url('/admin') }}" class="flex items-center gap-3 bg-emerald-900/50 p-3 rounded-xl text-sm font-medium">📊 Dashboard</a>
+            <a href="{{ url('/inventario') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">🚲 Inventario</a>
+            <a href="{{ url('/estaciones') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">📍 Estaciones</a>
+            <a href="{{ url('/usuarios') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">👥 Usuarios</a>
+            <a href="{{ url('/alertas') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">⚠️ Alertas</a>
+            <a href="{{ url('/reportes') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">📈 Reportes</a>
+            <a href="{{ url('/ajustes') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white transition text-sm">⚙️ Ajustes</a>
         </nav>
         <div class="flex items-center gap-3 pt-6 border-t border-emerald-900">
             <div class="bg-amber-400 w-8 h-8 rounded-full flex items-center justify-center font-bold text-[#0A3D27]">MA</div>
             <div class="text-xs">
                 <p class="font-bold">Richar Torres</p>
-                <p class="text-emerald-300">Operadora · Jardín</p>
+                <p class="text-emerald-300">Operador · Jardín</p>
             </div>
         </div>
     </aside>
@@ -37,15 +37,14 @@
         <header class="flex justify-between items-center mb-8">
             <div>
                 <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold">Panel Operativo</p>
-                <h2 class="text-2xl font-bold text-gray-900">Buenos días, María 🍃</h2>
+                <h2 class="text-2xl font-bold text-gray-900">Buenos días, Richar 🍃</h2>
             </div>
 
-                <a href="{{ route('landing') }}">
-                    <button class="bg-white border px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">
-                        Ver app cliente
-                    </button>
-                </a>
-                
+            <a href="{{ url('/') }}">
+                <button class="bg-[#FFBC00] hover:bg-[#F0B000] text-[#101828] px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
+                    Ver app cliente
+                </button>
+            </a>
         </header>
 
         <div class="grid grid-cols-4 gap-6 mb-8">

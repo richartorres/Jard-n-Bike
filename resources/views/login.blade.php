@@ -44,7 +44,8 @@
 
             <button class="text-xs text-[#105B3A] font-semibold hover:text-[#FFBC00] transition">¿Olvidaste tu contraseña?</button>
 
-            <button onclick="window.location.href='/mapa'" class="w-full bg-[#FFBC00] hover:bg-[#E6A900] text-[#101828] font-bold py-4 rounded-2xl transition shadow-[0_4px_12px_rgba(255,188,0,0.3)] mt-4 flex items-center justify-center gap-2">
+            <!-- Botón de Iniciar sesión corregido con url() -->
+            <button onclick="window.location.href='{{ url('/mapa') }}'" class="w-full bg-[#FFBC00] hover:bg-[#E6A900] text-[#101828] font-bold py-4 rounded-2xl transition shadow-[0_4px_12px_rgba(255,188,0,0.3)] mt-4 flex items-center justify-center gap-2">
                 Iniciar sesión
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
@@ -52,7 +53,8 @@
 
         <div class="mt-8 text-center">
             <p class="text-sm text-gray-500">¿Aún no tienes cuenta? 
-                <a href="/registro" class="text-[#105B3A] font-bold hover:text-[#FFBC00] transition">Regístrate aquí</a>
+                <!-- Enlace de registro corregido con url() -->
+                <a href="{{ url('/registro') }}" class="text-[#105B3A] font-bold hover:text-[#FFBC00] transition">Regístrate aquí</a>
             </p>
         </div>
     </div>

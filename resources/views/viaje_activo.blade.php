@@ -17,7 +17,8 @@
             <p class="text-2xl font-bold text-amber-900">$1.200 COP</p>
         </div>
 
-        <button onclick="window.location.href='/mapa'" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition">
+        <!-- RUTA CORREGIDA CON url() -->
+        <button onclick="window.location.href='{{ url('/mapa') }}'" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition">
             FINALIZAR VIAJE
         </button>
     </div>

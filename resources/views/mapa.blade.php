@@ -45,23 +45,21 @@
         </button>
     </div>
 
-        <div id="qr-reader" class="hidden absolute inset-0 z-[100] bg-white flex flex-col items-center justify-center p-6">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">Escanea el código QR</h2>
-            <div id="reader" class="w-full max-w-sm rounded-2xl overflow-hidden shadow-lg border-2 border-amber-400"></div>
-            
-            <button type="button" onclick="cerrarScanner()" class="mt-8 bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-700 transition">
-                Cancelar
-            </button>
-        </div>
+    <div id="qr-reader" class="hidden absolute inset-0 z-[100] bg-white flex flex-col items-center justify-center p-6">
+        <h2 class="text-xl font-bold mb-4 text-gray-800">Escanea el código QR</h2>
+        <div id="reader" class="w-full max-w-sm rounded-2xl overflow-hidden shadow-lg border-2 border-amber-400"></div>
+        
+        <button type="button" onclick="cerrarScanner()" class="mt-8 bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-700 transition">
+            Cancelar
+        </button>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Mapa
         const map = L.map('map').setView([5.59833, -75.81922], 16);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
 
-        // Datos estaciones
-        const estaciones = {!! json_encode($estaciones) !!};
+        const estaciones = JSON.parse('{!! json_encode($estaciones) !!}');
         estaciones.forEach(estacion => {
             const [lat, lng] = estacion.coordenadas.split(',');
             if (lat && lng) {
@@ -70,7 +68,6 @@
             }
         });
 
-        // Lógica Escáner
         const html5QrCode = new Html5Qrcode("reader");
 
         function abrirScanner() {
@@ -79,12 +76,11 @@
                 { facingMode: "environment" },
                 { fps: 10, qrbox: 250 },
                 (decodedText) => {
-                    // 1. Detenemos el escáner de forma inmediata
                     html5QrCode.stop().then(() => {
                         document.getElementById('qr-reader').classList.add('hidden');
                         
-                        // 2. Enviamos el dato al servidor
-                        fetch('/iniciar-viaje', {
+                        // RUTA CORREGIDA CON url()
+                        fetch("{{ url('/iniciar-viaje') }}", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -93,8 +89,8 @@
                             body: JSON.stringify({ bicicleta_id: decodedText })
                         })
                         .then(response => {
-                            // 3. Redireccionamos instantáneamente a la pantalla de viaje
-                            window.location.href = "/viaje-activo";
+                            // RUTA CORREGIDA CON url()
+                            window.location.href = "{{ url('/viaje-activo') }}";
                         });
                     }).catch(err => {
                         console.error("Error al detener el escáner: ", err);
@@ -104,20 +100,11 @@
         }
 
         function cerrarScanner() {
-    // 1. Intentamos detener el escáner si está activo
-    if (html5QrCode && html5QrCode.isScanning) {
-        html5QrCode.stop().then(() => {
-            console.log("Escáner detenido");
-        }).catch(err => {
-            console.error("Error al detener el escáner: ", err);
-        });
-    }
-    
-    // 2. Ocultamos el contenedor sí o sí
-    document.getElementById('qr-reader').classList.add('hidden');
-}
-
-        
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop();
+            }
+            document.getElementById('qr-reader').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
