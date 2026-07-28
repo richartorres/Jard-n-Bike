@@ -9,18 +9,23 @@ class LoginController extends Controller
 {
     public function login(Request $request)
     {
+        // 1. Validamos usando 'email' (que sí existe en tu tabla users)
         $credentials = $request->validate([
-            'cedula' => ['required'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
+        // 2. Intentamos loguear comparando contra la base de datos
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+
+            // Si es correcto, lo mandamos al mapa que ya configuraste
             return redirect()->intended('/mapa');
         }
 
+        // 3. Si falla, regresa al login con un mensaje de error
         return back()->withErrors([
-            'cedula' => 'Las credenciales no coinciden con nuestros registros.',
-        ]);
+            'email' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
+        ])->onlyInput('email');
     }
 }
