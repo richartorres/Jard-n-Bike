@@ -5,30 +5,56 @@ namespace App\Http\Controllers;
 use App\Models\Alquiler;
 use App\Models\Bicicleta;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class AlquilerController extends Controller
 {
-   /**
-     * Inicia un nuevo alquiler (Punto A)
+    /**
+     * Inicia un nuevo alquiler al escanear el QR o ID de la bicicleta
      */
     public function store(Request $request)
     {
-        // 1. Validar los datos mínimos (bicicleta_id debe ser un entero válido)
+        // 1. Validar que llegue el código o ID de la bicicleta
         $request->validate([
-            'user_id' => 'required|integer',
-            'bicicleta_id' => 'required|integer', 
-            'estacion_origen_id' => 'required|integer',
+            'bicicleta_id' => 'required',
         ]);
 
-        // 2. Buscar la bicicleta por su ID numérico (llave primaria)
-        $bicicleta = Bicicleta::find($request->bicicleta_id);
-
-        if (!$bicicleta) {
-            return response()->json(['status' => 'error', 'message' => 'La bicicleta no existe.'], 404);
+        // Asegurarnos de que haya un usuario autenticado
+        if (!Auth::check()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Debes iniciar sesión para alquilar una bicicleta.'
+            ], 401);
         }
 
-        // 3. Verificar estado
+        $userId = Auth::id();
+
+        // 2. Buscar la bicicleta por ID o por Código QR exacto
+        $bicicleta = Bicicleta::where('id_bicicleta', $request->bicicleta_id)
+            ->orWhere('codigo_qr', $request->bicicleta_id)
+            ->first();
+
+        if (!$bicicleta) {
+            return response()->json([
+                'status' => 'error', 
+                'message' => 'La bicicleta no existe o el código QR es inválido.'
+            ], 404);
+        }
+
+        // 3. Verificar si el usuario ya tiene un alquiler activo
+        $alquilerActivo = Alquiler::where('user_id', $userId)
+            ->where('estado_alquiler', 'Activo')
+            ->first();
+
+        if ($alquilerActivo) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ya tienes un viaje activo en curso.'
+            ], 400);
+        }
+
+        // 4. Verificar estado de la bicicleta
         if ($bicicleta->estado !== 'Disponible') {
             return response()->json([
                 'status' => 'error', 
@@ -36,7 +62,7 @@ class AlquilerController extends Controller
             ], 400);
         }
 
-        // 4. REGLA DEL SENA: Validar batería antes de rentar
+        // 5. Regla de negocio: Validar batería mínima (20%)
         if ($bicicleta->nivel_bateria < 20) {
             return response()->json([
                 'status' => 'error',
@@ -44,114 +70,117 @@ class AlquilerController extends Controller
             ], 400);
         }
 
-        // 5. Crear el registro del Alquiler
+        // 6. Crear el registro del Alquiler en la base de datos
         $alquiler = Alquiler::create([
-            'user_id' => $request->user_id,
-            'bicicleta_id' => $bicicleta->id_bicicleta, // Usamos el ID correcto de la tabla
-            'estacion_origen_id' => $request->estacion_origen_id,
+            'user_id' => $userId,
+            'bicicleta_id' => $bicicleta->id_bicicleta,
+            'estacion_origen_id' => $bicicleta->estacion_act,
             'fecha_inicio' => Carbon::now(),
             'estado_alquiler' => 'Activo',
             'valor_total' => 0.00
         ]);
 
-        // 6. Actualizar el estado de la bicicleta a "En Uso"
+        // 7. Actualizar el estado de la bicicleta a "En uso"
         $bicicleta->update([
-            'estado' => 'En Uso'
+            'estado' => 'En uso'
         ]);
 
         return response()->json([
             'status' => 'success',
-            'message' => '¡Viaje iniciado con éxito! Disfruta de Jardín Bike.',
-            'alquiler' => $alquiler
+            'message' => '¡Viaje iniciado con éxito!',
+            'redirect' => url('/viaje-activo')
         ], 201);
     }
 
     /**
-     * Finaliza un alquiler activo (Punto B) y calcula el costo
+     * Finaliza el alquiler activo del usuario logueado
      */
-    public function finalizar(Request $request, $id_alquiler)
+    public function finalizar(Request $request)
     {
-        // 1. Validar que llegue la estación de destino
-        $request->validate([
-            'estacion_destino_id' => 'required|integer',
-        ]);
+        if (!Auth::check()) {
+            return response()->json(['status' => 'error', 'message' => 'No autorizado'], 401);
+        }
 
-        // 2. Buscar el alquiler que esté 'Activo'
-        $alquiler = Alquiler::find($id_alquiler);
+        $userId = Auth::id();
 
-        if (!$alquiler || $alquiler->estado_alquiler !== 'Activo') {
+        // Buscar automáticamente el alquiler activo de este usuario
+        $alquiler = Alquiler::where('user_id', $userId)
+            ->where('estado_alquiler', 'Activo')
+            ->latest('fecha_inicio')
+            ->first();
+
+        if (!$alquiler) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'El alquiler no existe o ya fue finalizado previamente.'
+                'message' => 'No tienes ningún alquiler activo para finalizar.'
             ], 404);
         }
 
-        // 3. Capturar la fecha de fin actual
-        $fecha_fin = Carbon::now();
-        $fecha_inicio = Carbon::parse($alquiler->fecha_inicio);
-
-        // 4. Calcular la diferencia en minutos reales
-        $minutos = $fecha_inicio->diffInMinutes($fecha_fin);
+        // Capturar fechas y calcular tiempo transcurrido
+        $fechaFin = Carbon::now();
+        $fechaInicio = Carbon::parse($alquiler->fecha_inicio);
+        $minutos = $fechaInicio->diffInMinutes($fechaFin);
         
-        // 🚨 REGLA DE NEGOCIO: $4.000 COP por cada 15 minutos o fracción
-        // Si el viaje dura 0 minutos (o menos de 1), cobramos una fracción mínima (1)
-        $unidades_de_15 = ceil(max($minutos, 1) / 15); 
-        $valor_tarifa = $unidades_de_15 * 4000;
+        // REGLA DE NEGOCIO: $4.000 COP por cada 15 minutos o fracción
+        $unidadesDe15 = ceil(max($minutos, 1) / 15); 
+        $valorTarifa = $unidadesDe15 * 4000;
 
-        // 5. Actualizar el registro del alquiler
+        // Actualizar el registro del alquiler
         $alquiler->update([
-            'estacion_destino_id' => $request->estacion_destino_id,
-            'fecha_fin' => $fecha_fin,
-            'valor_total' => $valor_tarifa,
+            'estacion_destino_id' => $request->estacion_destino_id ?? $alquiler->estacion_origen_id,
+            'fecha_fin' => $fechaFin,
+            'valor_total' => $request->valor_total ?? $valorTarifa, // Acepta el cálculo del front o lo recalcula
             'estado_alquiler' => 'Completado'
         ]);
 
-        // 6. Liberar la bicicleta: volver a ponerla "Disponible"
+        // Liberar la bicicleta: volver a ponerla "Disponible" en su estación actual o de origen
         $bicicleta = Bicicleta::find($alquiler->bicicleta_id);
         if ($bicicleta) {
             $bicicleta->update([
                 'estado' => 'Disponible',
-                'estacion_act' => $request->estacion_destino_id // La bici se queda en la nueva estación
+                'estacion_act' => $alquiler->estacion_origen_id 
             ]);
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => '¡Bicicleta entregada con éxito! Alquiler cerrado.',
+            'message' => '¡Viaje finalizado con éxito!',
+            'redirect' => url('/mapa'),
             'resumen' => [
-                'tiempo_total_minutos' => $minutos,
-                'fracciones_cobradas' => $unidades_de_15,
-                'total_a_pagar' => '$' . number_format($valor_tarifa, 0, ',', '.') . ' COP',
-                'alquiler' => $alquiler
+                'tiempo_minutos' => $minutos,
+                'total_pagar' => $valorTarifa
             ]
         ], 200);
     }
 
-    public function index() { return response()->json(Alquiler::with(['bicicleta', 'estacionOrigen'])->get(), 200); }
-    public function show(string $id) {}
-    public function update(Request $request, string $id) {}
-    public function destroy(string $id) {}
+    /**
+     * Muestra la vista del viaje activo con los datos reales del usuario
+     */
+    public function mostrarViajeActivo()
+    {
+        $alquiler = Alquiler::where('user_id', Auth::id())
+            ->where('estado_alquiler', 'Activo')
+            ->with(['bicicleta', 'estacionOrigen'])
+            ->latest('fecha_inicio')
+            ->first();
 
+        // Si no hay viaje activo, redirigir al mapa
+        if (!$alquiler) {
+            return redirect('/mapa');
+        }
 
+        return view('viaje-activo', compact('alquiler'));
+    }
 
-        /**
-     * Obtiene el historial de alquileres de un usuario específico
+    /**
+     * Historial de usuario
      */
     public function historialUsuario($user_id)
     {
-        // Buscamos los alquileres del usuario trayendo los datos de la bicicleta y la estación de origen
         $historial = Alquiler::where('user_id', $user_id)
             ->with(['bicicleta', 'estacionOrigen'])
-            ->orderBy('created_at', 'desc') // Los viajes más recientes primero
+            ->orderBy('created_at', 'desc')
             ->get();
-
-        if ($historial->isEmpty()) {
-            return response()->json([
-                'status' => 'success',
-                'message' => 'El usuario no tiene viajes registrados aún.',
-                'historial' => []
-            ], 200);
-        }
 
         return response()->json([
             'status' => 'success',
@@ -159,4 +188,7 @@ class AlquilerController extends Controller
         ], 200);
     }
 
+    public function index() { 
+        return response()->json(Alquiler::with(['bicicleta', 'estacionOrigen'])->get(), 200); 
+    }
 }

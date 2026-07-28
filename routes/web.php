@@ -2,12 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Models\Estacion;
-use Illuminate\Http\Request;
-use App\Http\Controllers\LoginController;    // <--- Esta línea es la que evita el error del editor
-use App\Http\Controllers\RegisterController; 
-
-
-
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\AlquilerController; // <--- ¡Importante importar el controlador!
 
 // ==========================================
 // RUTAS DE VISTAS GENERALES Y LANDING
@@ -24,20 +21,14 @@ Route::get('/landing', function () {
 // RUTAS DE AUTENTICACIÓN (LOGIN Y REGISTRO)
 // ==========================================
 
-// Ver formulario de Login
 Route::get('/login', function () {
     return view('login');
 });
-
-// Procesar datos del Login contra la BD de XAMPP
 Route::post('/login', [LoginController::class, 'login']); 
 
-// Ver formulario de Registro
 Route::get('/registro', function () {
     return view('registro');
 });
-
-// Procesar el Registro y guardar en la BD de XAMPP
 Route::post('/registro', [RegisterController::class, 'store']);
 
 // ==========================================
@@ -50,17 +41,21 @@ Route::get('/mapa', function () {
     return view('mapa', compact('estaciones'));
 });
 
-// 🚀 Ruta para procesar el inicio del viaje
-Route::post('/iniciar-viaje', function (Request $request) {
-    return response()->json(['status' => 'viaje_iniciado']);
-});
-
-// 🚲 Ruta para la pantalla de viaje en curso
-Route::get('/viaje-activo', function () {
-    return view('viaje_activo');
-});
-
 // Panel de administración
 Route::get('/admin', function () {
     return view('admi');
 })->name('admin');
+
+// ==========================================
+// RUTAS DE ALQUILER (Protegidas por Auth)
+// ==========================================
+Route::middleware(['auth'])->group(function () {
+    // 🚀 Iniciar alquiler desde el escaneo del QR o ID de la bici
+    Route::post('/iniciar-viaje', [AlquilerController::class, 'store']);
+    
+    // 🚲 Pantalla de viaje activo (lee el alquiler real del usuario logueado)
+    Route::get('/viaje-activo', [AlquilerController::class, 'mostrarViajeActivo']);
+    
+    // 💵 Finalizar viaje, calcular tarifa y registrar pago (Efectivo/Transferencia)
+    Route::post('/finalizar-viaje', [AlquilerController::class, 'finalizar']);
+});
