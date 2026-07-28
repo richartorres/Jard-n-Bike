@@ -2,16 +2,17 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ¡Clave para móviles! Adapta la escala exacta a cualquier celular -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jardín Bike - Movilidad Eléctrica</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="bg-[#F8F9FA] min-h-screen flex flex-col justify-center items-center p-4">
+<body class="bg-[#F8F9FA] min-h-[100dvh] flex flex-col justify-center items-center p-4 sm:p-6">
 
     <!-- Contenedor Principal Estilo Tarjeta Flotante -->
-    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-6 sm:p-8 relative">
+    <div class="w-full max-w-md bg-white sm:rounded-3xl shadow-none sm:shadow-xl overflow-hidden border-0 sm:border border-gray-100 p-6 sm:p-8 relative">
         
         <!-- Botón Admin Superior -->
         <div class="flex justify-end mb-2">
@@ -21,8 +22,8 @@
         </div>
 
         <!-- Logo con Persona en Bicicleta Profesional (100% Seguro y Visible) -->
-        <div class="text-center mb-10">
-            <div class="inline-block bg-[#105B3A] p-5 rounded-3xl mb-4 shadow-lg shadow-emerald-900/10">
+        <div class="text-center mb-8">
+            <div class="inline-block bg-[#105B3A] p-4 sm:p-5 rounded-2xl sm:rounded-3xl mb-3 sm:mb-4 shadow-lg shadow-emerald-900/10">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="5.5" cy="17.5" r="3.5"></circle><circle cx="18.5" cy="17.5" r="3.5"></circle>
                     <path d="M15 17.5H9L12 11L16 15"></path>
@@ -66,7 +67,8 @@
                 </div>
             </div>
 
-            <div class="bg-#[F8F9FA] p-3.5 rounded-xl border border-gray-100 flex items-center gap-3.5">
+            <!-- Corrección del error tipográfico bg-#[F8F9FA] a bg-[#F8F9FA] -->
+            <div class="bg-[#F8F9FA] p-3.5 rounded-xl border border-gray-100 flex items-center gap-3.5">
                 <div class="bg-[#E8F3EE] text-[#105B3A] p-2 rounded-xl">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </div>

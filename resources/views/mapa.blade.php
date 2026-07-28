@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jardín Bike - Mapa</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -13,7 +13,7 @@
 
     <style>
         body { font-family: 'Inter', sans-serif; }
-        #map { height: 100vh; width: 100vw; z-index: 1; }
+        #map { height: 100dvh; width: 100vw; z-index: 1; }
         .no-leaflet-attribution .leaflet-control-attribution { display: none; }
     </style>
 
@@ -21,26 +21,26 @@
 </head>
 <body class="bg-gray-100 overflow-hidden relative antialiased">
 
-    <div class="absolute top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white/95 backdrop-blur-md shadow-xl rounded-2xl p-4 z-50 flex justify-between items-center border border-gray-100">
+    <div class="absolute top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-white/95 backdrop-blur-md shadow-xl rounded-2xl p-4 z-50 flex justify-between items-center border border-gray-100">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
+            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
             <div>
-                <p class="text-xs text-gray-400 font-medium tracking-wide">SALDO DISPONIBLE</p>
-                <p class="text-lg font-bold text-gray-800">$24.000 COP <span class="text-sm font-normal text-gray-500">· 90 min</span></p>
+                <p class="text-[10px] sm:text-xs text-gray-400 font-medium tracking-wide">SALDO DISPONIBLE</p>
+                <p class="text-base sm:text-lg font-bold text-gray-800">$24.000 COP <span class="text-xs sm:text-sm font-normal text-gray-500">· 90 min</span></p>
             </div>
         </div>
-        <div class="bg-emerald-50 text-emerald-700 font-semibold px-3 py-1.5 rounded-xl text-xs tracking-wide">
+        <div class="bg-emerald-50 text-emerald-700 font-semibold px-3 py-1.5 rounded-xl text-xs tracking-wide shrink-0">
             🚲 Jardín, Ant.
         </div>
     </div>
 
     <div id="map" class="no-leaflet-attribution"></div>
 
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50">
-        <button onclick="abrirScanner()" class="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold py-4 rounded-2xl shadow-2xl transition-all active:scale-95 text-center tracking-wide flex items-center justify-center gap-2 text-base">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50">
+        <button onclick="abrirScanner()" class="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold py-4 rounded-2xl shadow-2xl transition-all active:scale-95 text-center tracking-wide flex items-center justify-center gap-2 text-sm sm:text-base">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
             ESCANEAR PARA DESBLOQUEAR
         </button>
     </div>
@@ -79,7 +79,6 @@
                     html5QrCode.stop().then(() => {
                         document.getElementById('qr-reader').classList.add('hidden');
                         
-                        // RUTA CORREGIDA CON url()
                         fetch("{{ url('/iniciar-viaje') }}", {
                             method: 'POST',
                             headers: {
@@ -89,7 +88,6 @@
                             body: JSON.stringify({ bicicleta_id: decodedText })
                         })
                         .then(response => {
-                            // RUTA CORREGIDA CON url()
                             window.location.href = "{{ url('/viaje-activo') }}";
                         });
                     }).catch(err => {
