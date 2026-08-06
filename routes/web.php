@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Estacion;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\AlquilerController; // <--- ¡Importante importar el controlador!
+use App\Http\Controllers\AlquilerController; // <--- Importante importar el controlador
 
 // ==========================================
 // RUTAS DE VISTAS GENERALES Y LANDING
@@ -53,9 +53,9 @@ Route::middleware(['auth'])->group(function () {
     // 🚀 Iniciar alquiler desde el escaneo del QR o ID de la bici
     Route::post('/iniciar-viaje', [AlquilerController::class, 'store']);
     
-    // 🚲 Pantalla de viaje activo (lee el alquiler real del usuario logueado)
-    Route::get('/viaje-activo', [AlquilerController::class, 'mostrarViajeActivo']);
+    // 🚲 Pantalla de viaje activo (con mapa interactivo Leaflet y estaciones)
+    Route::get('/viaje-activo', [AlquilerController::class, 'viajeActivo']);
     
-    // 💵 Finalizar viaje, calcular tarifa y registrar pago (Efectivo/Transferencia)
-    Route::post('/finalizar-viaje', [AlquilerController::class, 'finalizar']);
+    // 💵 Finalizar viaje pasando el ID exacto del alquiler para registrar la estación de destino
+    Route::post('/finalizar-viaje/{id}', [AlquilerController::class, 'finalizarViaje']);
 });
