@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Models\Estacion;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\AlquilerController; // <--- Importante importar el controlador
 

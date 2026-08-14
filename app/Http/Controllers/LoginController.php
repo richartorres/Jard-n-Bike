@@ -9,7 +9,7 @@ class LoginController extends Controller
 {
     public function login(Request $request)
     {
-        // 1. Validamos usando 'email' (que sí existe en tu tabla users)
+        // 1. Validamos usando 'email'
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
@@ -19,7 +19,12 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Si es correcto, lo mandamos al mapa que ya configuraste
+            // 🔍 VALIDACIÓN DE ROL: Si el usuario autenticado es admin, va al panel de control
+            if (Auth::user()->role === 'admin') {
+                return redirect()->intended('/admin');
+            }
+
+            // Si es un usuario normal, lo mandamos al mapa
             return redirect()->intended('/mapa');
         }
 

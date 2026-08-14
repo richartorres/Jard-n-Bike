@@ -16,7 +16,7 @@
         
         <!-- Botón Admin Superior -->
         <div class="flex justify-end mb-2">
-            <a href="{{ url('/admin') }}" class="text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full transition">
+            <a href="{{ url('/login') }}" class="text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full transition">
                 Admin
             </a>
         </div>

@@ -75,22 +75,34 @@
                 <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Buenos días, Richar 🍃</h2>
             </div>
 
-            <a href="{{ url('/') }}" class="w-full sm:w-auto">
+            <a href="{{ url('/mapa') }}" class="w-full sm:w-auto">
                 <button class="w-full sm:w-auto bg-[#FFBC00] hover:bg-[#F0B000] text-[#101828] px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-sm text-center">
                     Ver app cliente
                 </button>
             </a>
         </header>
 
-        <!-- Tarjetas de Estadísticas (Responsive Grid) -->
+        <!-- Tarjetas de Estadísticas Dinámicas -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm"><p class="text-[11px] sm:text-xs text-gray-500 font-medium">BICICLETAS ACTIVAS</p><p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">47</p></div>
-            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm"><p class="text-[11px] sm:text-xs text-gray-500 font-medium">VIAJES HOY</p><p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">184</p></div>
-            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm"><p class="text-[11px] sm:text-xs text-gray-500 font-medium">ALERTAS CRÍTICAS</p><p class="text-2xl sm:text-3xl font-bold text-red-500 mt-1">3</p></div>
-            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm"><p class="text-[11px] sm:text-xs text-gray-500 font-medium">INGRESOS DEL DÍA</p><p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">$736.000</p></div>
+            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <p class="text-[11px] sm:text-xs text-gray-500 font-medium">BICICLETAS ACTIVAS</p>
+                <p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{{ $bicicletasActivas ?? 0 }}</p>
+            </div>
+            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <p class="text-[11px] sm:text-xs text-gray-500 font-medium">VIAJES HOY</p>
+                <p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{{ $viajesHoy ?? 0 }}</p>
+            </div>
+            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <p class="text-[11px] sm:text-xs text-gray-500 font-medium">ALERTAS CRÍTICAS</p>
+                <p class="text-2xl sm:text-3xl font-bold text-red-500 mt-1">{{ $alertasCriticas ?? 0 }}</p>
+            </div>
+            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <p class="text-[11px] sm:text-xs text-gray-500 font-medium">INGRESOS DEL DÍA</p>
+                <p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">${{ number_format($ingresosHoy ?? 0, 0, ',', '.') }}</p>
+            </div>
         </div>
 
-        <!-- Tabla con Scroll Horizontal Responsivo -->
+        <!-- Tabla con Scroll Horizontal Responsivo y Conectada a la Base de Datos -->
         <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
                 <h3 class="font-bold text-base sm:text-lg text-gray-900">Control de inventario</h3>
@@ -109,20 +121,26 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        <tr>
-                            <td class="py-4 font-semibold text-gray-900">BICI-012</td>
-                            <td class="py-4 text-gray-600">Parque Principal</td>
-                            <td class="py-4 text-red-500 font-medium">Crítico</td>
-                            <td class="py-4"><span class="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full text-xs font-medium">Mantenimiento</span></td>
-                            <td class="py-4 text-gray-400 font-bold tracking-widest cursor-pointer hover:text-gray-600">...</td>
-                        </tr>
-                        <tr>
-                            <td class="py-4 font-semibold text-gray-900">BICI-031</td>
-                            <td class="py-4 text-gray-600">Estación Cascada</td>
-                            <td class="py-4 text-emerald-600 font-medium">92% saludable</td>
-                            <td class="py-4"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-medium">Disponible</span></td>
-                            <td class="py-4 text-gray-400 font-bold tracking-widest cursor-pointer hover:text-gray-600">...</td>
-                        </tr>
+                        @forelse($bicicletas ?? [] as $bici)
+                            <tr>
+                                <td class="py-4 font-semibold text-gray-900">BICI-{{ $bici->id_bicicleta ?? $bici->id }}</td>
+                                <td class="py-4 text-gray-600">{{ $bici->estacion->nombre ?? 'Sin estación' }}</td>
+                                <td class="py-4 {{ ($bici->bateria ?? 100) < 20 ? 'text-red-500' : 'text-emerald-600' }} font-medium">
+                                    {{ $bici->bateria ?? 100 }}% saludable
+                                </td>
+                                <td class="py-4">
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-medium 
+                                        {{ ($bici->estado ?? '') == 'Mantenimiento' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700' }}">
+                                        {{ $bici->estado ?? 'Disponible' }}
+                                    </span>
+                                </td>
+                                <td class="py-4 text-gray-400 font-bold tracking-widest cursor-pointer hover:text-gray-600">...</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="py-6 text-center text-gray-500">No hay bicicletas registradas en la base de datos.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
