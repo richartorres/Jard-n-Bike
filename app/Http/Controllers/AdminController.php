@@ -10,7 +10,26 @@ use Carbon\Carbon;
 
 class AdminController extends Controller
 {
+    /**
+     * Método principal del panel de administración
+     */
     public function index()
+    {
+        return $this->cargarDatosPanel();
+    }
+
+    /**
+     * Método alternativo por si la ruta apunta a dashboard
+     */
+    public function dashboard()
+    {
+        return $this->cargarDatosPanel();
+    }
+
+    /**
+     * Lógica central para recopilar todos los datos de la base de datos
+     */
+    private function cargarDatosPanel()
     {
         // 1. Datos del usuario autenticado
         $user = Auth::user();
@@ -21,9 +40,12 @@ class AdminController extends Controller
         }
 
         // 2. Tarjetas de Estadísticas (Dinámicas)
-        $bicicletasActivas = Bicicleta::where('estado', 'En uso')->count();
+        // Nota: Si tus bicis rodando usan el estado 'Activo' o 'En uso', puedes ajustarlo aquí.
+        $bicicletasActivas = Bicicleta::where('estado', 'En uso')
+            ->orWhere('estado', 'Activo')
+            ->count();
         
-        // Viajes realizados hoy
+        // Viajes realizados hoy (basado en la fecha del servidor)
         $viajesHoy = Alquiler::whereDate('created_at', Carbon::today())->count();
         
         // Alertas críticas (Bicicletas con batería menor a 20% o en mantenimiento)
@@ -36,8 +58,8 @@ class AdminController extends Controller
             ->where('estado_alquiler', 'Completado')
             ->sum('valor_total');
 
-        // 3. Control de inventario 
-        $bicicletas = Bicicleta::with('estacionOrigen')->take(10)->get(); 
+        // 3. Control de inventario (Carga todas las bicis o las que necesites mostrar)
+        $bicicletas = Bicicleta::with('estacionOrigen')->get(); 
 
         return view('admi', compact(
             'user', 

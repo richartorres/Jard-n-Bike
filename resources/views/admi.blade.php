@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* Ocultar scrollbar en móviles para mejor estética lateral */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -28,10 +27,8 @@
         </button>
     </div>
 
-    <!-- Sidebar (Fijo en PC, Oculto/Desplegable en Móvil) -->
+    <!-- Sidebar -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0A3D27] text-white flex flex-col p-6 transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none">
-        
-        <!-- Botón cerrar en móvil -->
         <div class="flex justify-between items-center mb-8 lg:mb-10">
             <div class="flex items-center gap-2">
                 <div class="bg-white p-2 rounded-full text-[#0A3D27]">🚲</div>
@@ -55,16 +52,19 @@
             <a href="{{ url('/ajustes') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white hover:bg-emerald-900/30 rounded-xl transition text-sm">⚙️ Ajustes</a>
         </nav>
 
+        <!-- Datos Dinámicos del Usuario Logueado (Tus datos reales de la BD) -->
         <div class="flex items-center gap-3 pt-6 border-t border-emerald-900 mt-4">
-            <div class="bg-amber-400 w-9 h-9 rounded-full flex items-center justify-center font-bold text-[#0A3D27] shrink-0">RT</div>
+            <div class="bg-amber-400 w-9 h-9 rounded-full flex items-center justify-center font-bold text-[#0A3D27] shrink-0">
+                {{ strtoupper(substr($user->name ?? 'Admin', 0, 2)) }}
+            </div>
             <div class="text-xs truncate">
-                <p class="font-bold truncate">Richar Torres</p>
-                <p class="text-emerald-300">Operador · Jardín</p>
+                <p class="font-bold truncate">{{ $user->name ?? 'Usuario' }}</p>
+                <p class="text-emerald-300">Administrador · Jardín</p>
             </div>
         </div>
     </aside>
 
-    <!-- Overlay oscuro para móvil al abrir menú -->
+    <!-- Overlay móvil -->
     <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
     <!-- Contenido Principal -->
@@ -72,9 +72,10 @@
         <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
             <div>
                 <p class="text-[11px] sm:text-xs text-gray-500 uppercase tracking-widest font-semibold">Panel Operativo</p>
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Buenos días, Richar 🍃</h2>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Buenos días, {{ explode(' ', trim($user->name ?? 'Admin'))[0] }} 🍃</h2>
             </div>
 
+            <!-- Botón conectado para ver la app cliente como acordamos -->
             <a href="{{ url('/mapa') }}" class="w-full sm:w-auto">
                 <button class="w-full sm:w-auto bg-[#FFBC00] hover:bg-[#F0B000] text-[#101828] px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-sm text-center">
                     Ver app cliente
@@ -82,7 +83,7 @@
             </a>
         </header>
 
-        <!-- Tarjetas de Estadísticas Dinámicas -->
+        <!-- Tarjetas de Estadísticas Reales desde la BD -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
                 <p class="text-[11px] sm:text-xs text-gray-500 font-medium">BICICLETAS ACTIVAS</p>
@@ -102,7 +103,7 @@
             </div>
         </div>
 
-        <!-- Tabla con Scroll Horizontal Responsivo y Conectada a la Base de Datos -->
+        <!-- Tabla de Inventario conectada a la Base de Datos -->
         <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
                 <h3 class="font-bold text-base sm:text-lg text-gray-900">Control de inventario</h3>
@@ -124,9 +125,10 @@
                         @forelse($bicicletas ?? [] as $bici)
                             <tr>
                                 <td class="py-4 font-semibold text-gray-900">BICI-{{ $bici->id_bicicleta ?? $bici->id }}</td>
-                                <td class="py-4 text-gray-600">{{ $bici->estacion->nombre ?? 'Sin estación' }}</td>
-                                <td class="py-4 {{ ($bici->bateria ?? 100) < 20 ? 'text-red-500' : 'text-emerald-600' }} font-medium">
-                                    {{ $bici->bateria ?? 100 }}% saludable
+                                <!-- Muestra el nombre de la estación asociada mediante la relación -->
+                                <td class="py-4 text-gray-600">{{ $bici->estacionOrigen->nombre ?? 'Sin estación' }}</td>
+                                <td class="py-4 {{ ($bici->nivel_bateria ?? 100) < 20 ? 'text-red-500' : 'text-emerald-600' }} font-medium">
+                                    {{ $bici->nivel_bateria ?? 100 }}%
                                 </td>
                                 <td class="py-4">
                                     <span class="px-2.5 py-1 rounded-full text-xs font-medium 

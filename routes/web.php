@@ -42,10 +42,8 @@ Route::get('/mapa', function () {
     return view('mapa', compact('estaciones'));
 });
 
-// Panel de administración
-Route::get('/admin', function () {
-    return view('admi');
-})->name('admin');
+// Panel de administración (Conectado al controlador para mostrar datos reales de la BD)
+Route::get('/admin', [AdminController::class, 'index'])->name('admin');
 
 // ==========================================
 // RUTAS DE ALQUILER (Protegidas por Auth)
