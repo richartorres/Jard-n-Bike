@@ -16,13 +16,13 @@
         .leaflet-routing-container { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-100 overflow-hidden relative antialiased">
+<body class="bg-gray-100 h-[100dvh] flex flex-col justify-between relative overflow-hidden antialiased">
 
-    <!-- 1. MAPA DE FONDO -->
-    <div id="map" class="no-leaflet-attribution"></div>
+    <!-- 1. MAPA DE FONDO (Ocupará toda la pantalla detrás) -->
+    <div id="map" class="absolute inset-0 w-full h-full z-0 no-leaflet-attribution"></div>
 
     <!-- 2. PANEL SUPERIOR: Cronómetro y Costo en Vivo -->
-    <div class="absolute top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-white/95 backdrop-blur-md shadow-xl rounded-2xl p-4 z-20 border border-gray-100 flex justify-between items-center">
+    <div class="relative mx-auto mt-4 w-[92%] max-w-md bg-white/95 backdrop-blur-md shadow-xl rounded-2xl p-4 z-20 border border-gray-100 flex justify-between items-center">
         <div>
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">TIEMPO DE VIAJE</p>
             <h1 class="text-2xl font-black text-gray-900" id="cronometro">00:00</h1>
@@ -33,9 +33,9 @@
         </div>
     </div>
 
-    <!-- 3. PANEL INFERIOR ESTÁTICO: Botón de Finalizar Siempre Activo -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-white/95 backdrop-blur-md shadow-2xl rounded-3xl p-4 z-20 border border-gray-100">
-        <button onclick="finalizarViaje()" class="w-full bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-red-600/25 cursor-pointer text-sm sm:text-base flex items-center justify-center gap-2">
+    <!-- 3. PANEL INFERIOR FLOTANTE (Oculto por defecto hasta estar a 10 metros de una estación) -->
+    <div id="contenedor-finalizar" class="relative mx-auto mb-6 w-[92%] max-w-md bg-white/95 backdrop-blur-md shadow-2xl rounded-3xl p-4 z-20 border border-gray-100 mt-auto hidden transition-all duration-300">
+        <button onclick="finalizarViaje()" class="w-full bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-red-600/25 cursor-pointer text-base flex items-center justify-center gap-2">
             <span>🏁</span> FINALIZAR VIAJE
         </button>
     </div>
@@ -128,13 +128,13 @@
                 fitSelectedRoutes: true,
                 showAlternatives: false,
                 lineOptions: {
-                    styles: [{ color: '#10B981', weight: 6, opacity: 0.85 }]
+                    styles: [{ color: '#0edbdba9', weight: 6, opacity: 0.85 }]
                 },
                 createMarker: function() { return null; }
             }).addTo(map);
         }
 
-        // 4. Geolocalización en tiempo real (solo para mostrar el punto del usuario)
+        // 4. Geolocalización en tiempo real y validación de 10 metros
         if (navigator.geolocation) {
             navigator.geolocation.watchPosition(position => {
                 const lat = position.coords.latitude;
@@ -145,7 +145,7 @@
                     marcadorUsuario = L.marker([lat, lng], {
                         icon: L.divIcon({
                             className: 'user-pin',
-                            html: '<div style="background-color: #10B981; width: 18px; height: 18px; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 12px rgba(0,0,0,0.5);"></div>',
+                            html: '<div style="background-color: #8910b9; width: 18px; height: 18px; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 12px rgba(0,0,0,0.5);"></div>',
                             iconSize: [18, 18]
                         })
                     }).addTo(map).bindPopup("📍 ¡Estás aquí!").openPopup();
@@ -158,25 +158,37 @@
                     circuloPrecision.setRadius(accuracy);
                 }
 
-                // Intentar autodetectar si está cerca de alguna estación para preseleccionar su ID
+                let cercaDeEstacion = false;
+
+                // Revisar la distancia a cada estación
                 estaciones.forEach(est => {
                     if (est.coordenadas) {
                         const [eLat, eLng] = est.coordenadas.split(',');
                         if (eLat && eLng) {
-                            const R = 6371e3;
+                            const R = 6371e3; // Radio de la tierra en metros
                             const dLat = (parseFloat(eLat) - lat) * Math.PI / 180;
                             const dLon = (parseFloat(eLng) - lng) * Math.PI / 180;
                             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                                      Math.cos(lat * Math.PI / 180) * Math.cos(parseFloat(eLat) * Math.PI / 180) *
-                                      Math.sin(dLon/2) * Math.sin(dLon/2);
+                                    Math.cos(lat * Math.PI / 180) * Math.cos(parseFloat(eLat) * Math.PI / 180) *
+                                    Math.sin(dLon/2) * Math.sin(dLon/2);
                             const distancia = R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
 
-                            if (distancia <= 100 && !estacionDestinoIdSeleccionada) {
+                            // Si está a 10 metros o menos
+                            if (distancia <= 10) {
+                                cercaDeEstacion = true;
                                 estacionDestinoIdSeleccionada = est.id_estacion;
                             }
                         }
                     }
                 });
+
+                // Mostrar u ocultar el contenedor del botón basado en la proximidad
+                const contenedorFinalizar = document.getElementById('contenedor-finalizar');
+                if (cercaDeEstacion) {
+                    contenedorFinalizar.classList.remove('hidden');
+                } else {
+                    contenedorFinalizar.classList.add('hidden');
+                }
 
             }, error => {
                 console.warn("No se pudo obtener la ubicación GPS.");
@@ -216,7 +228,6 @@
         }
 
         function confirmarPago(metodo) {
-            // Si el usuario no seleccionó ninguna estación explícitamente, tomamos la primera disponible por defecto para evitar errores en el servidor
             if (!estacionDestinoIdSeleccionada && estaciones.length > 0) {
                 estacionDestinoIdSeleccionada = estaciones[0].id_estacion;
             }
