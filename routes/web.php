@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Models\Estacion;
+use App\Http\Controllers\BicicletaController;
+use App\Http\Controllers\EstacionController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RegisterController;
@@ -44,6 +46,9 @@ Route::get('/mapa', function () {
 
 // Panel de administración (Conectado al controlador para mostrar datos reales de la BD)
 Route::get('/admin', [AdminController::class, 'index'])->name('admin');
+
+Route::post('/bicicletas/store', [BicicletaController::class, 'store'])->name('bicicletas.store');
+Route::post('/estaciones/store', [EstacionController::class, 'store'])->name('estaciones.store');
 
 // ==========================================
 // RUTAS DE ALQUILER (Protegidas por Auth)

@@ -70,7 +70,7 @@
         <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
             <div>
                 <p class="text-[11px] sm:text-xs text-gray-500 uppercase tracking-widest font-semibold">Panel Operativo</p>
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Buenos días, {{ explode(' ', trim($user->name ?? 'Admin'))[0] }} 🍃</h2>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Hola, {{ explode(' ', trim($user->name ?? 'Admin'))[0] }} 🍃</h2>
             </div>
 
             <!-- Botón conectado para ver la app cliente como acordamos -->
@@ -170,14 +170,14 @@
         </div>
     </main>
 
-    <!-- NUEVO: MODAL AGREGAR BICICLETA -->
+    <!-- MODAL AGREGAR BICICLETA -->
     <div id="modal-bici" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-bold text-lg text-gray-900">🚲 Registrar Nueva Bicicleta</h3>
-                <button onclick="closeModal('modal-bici')" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
+                <button type="button" onclick="closeModal('modal-bici')" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
             </div>
-            <form action="{{ url('/bicicletas/store') }}" method="POST" class="space-y-4">
+            <form action="{{ route('bicicletas.store') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Código QR / Identificador</label>
@@ -199,22 +199,34 @@
         </div>
     </div>
 
-    <!-- NUEVO: MODAL AGREGAR ESTACIÓN -->
+    <!-- MODAL AGREGAR ESTACIÓN -->
     <div id="modal-estacion" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-bold text-lg text-gray-900">📍 Registrar Nueva Estación</h3>
-                <button onclick="closeModal('modal-estacion')" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
+                <button type="button" onclick="closeModal('modal-estacion')" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
             </div>
-            <form action="{{ url('/estaciones/store') }}" method="POST" class="space-y-4">
+            <form action="{{ route('estaciones.store') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
+                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Código de Estación</label>
+                    <input type="text" name="codigo" required placeholder="Ej. EST-NORTE" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
+                </div>
+                <div>
                     <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Nombre de la Estación</label>
-                    <input type="text" name="nombre" required placeholder="Ej. Estación Terminal" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
+                    <input type="text" name="nombre" required placeholder="Ej. Estación Terminal Norte" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Dirección / Ubicación</label>
+                    <input type="text" name="direccion" required placeholder="Ej. Carrera 4 # 12-30" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Capacidad de Anclajes</label>
                     <input type="number" name="capacidad" required placeholder="Ej. 10" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Coordenadas (Lat, Lng)</label>
+                    <input type="text" name="coordenadas" required placeholder="Ej. 5.59833,-75.81922" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
                 </div>
                 <div class="flex justify-end gap-2 pt-3">
                     <button type="button" onclick="closeModal('modal-estacion')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-medium">Cancelar</button>
