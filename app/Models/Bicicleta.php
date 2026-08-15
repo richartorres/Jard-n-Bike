@@ -22,9 +22,20 @@ class Bicicleta extends Model
         'kilometraje'
     ];
 
-    // Una bicicleta pertenece a una estación
+    /**
+     * Una bicicleta pertenece a una estación (Relación activa)
+     */
     public function estacion()
     {
         return $this->belongsTo(Estacion::class, 'estacion_act', 'id_estacion');
+    }
+
+    /**
+     * Alias opcional para mantener compatibilidad si en alguna vista o controlador 
+     * se llamó 'estacionOrigen' en lugar de 'estacion'.
+     */
+    public function estacionOrigen()
+    {
+        return $this->estacion();
     }
 }
