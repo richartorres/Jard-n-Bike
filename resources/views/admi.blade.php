@@ -70,7 +70,7 @@
         <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
             <div>
                 <p class="text-[11px] sm:text-xs text-gray-500 uppercase tracking-widest font-semibold">Panel Operativo</p>
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Hola, {{ explode(' ', trim($user->name ?? 'Admin'))[0] }} 🍃</h2>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Hola, {{ explode(' ', trim($user->name ?? 'Richar'))[0] }} </h2>
             </div>
 
             <!-- Botón conectado para ver la app cliente como acordamos -->

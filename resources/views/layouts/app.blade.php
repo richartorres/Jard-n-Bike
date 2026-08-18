@@ -70,7 +70,7 @@
         <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
             <div>
                 <p class="text-[11px] sm:text-xs text-gray-500 uppercase tracking-widest font-semibold">Panel Operativo</p>
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Hola, {{ explode(' ', trim($user->name ?? 'Admin'))[0] }} 🍃</h2>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Saludos, {{ explode(' ', trim($user->name ?? 'Richar'))[0]}} 🚲 </h2>
             </div>
             <a href="{{ url('/mapa') }}" class="w-full sm:w-auto">
                 <button class="w-full sm:w-auto bg-[#FFBC00] hover:bg-[#F0B000] text-[#101828] px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-sm text-center">

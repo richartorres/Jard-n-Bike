@@ -62,6 +62,12 @@ Route::get('/inventario', [BicicletaController::class, 'inventario'])->name('inv
 Route::patch('/bicicletas/{id}/estado', [BicicletaController::class, 'updateEstado'])->name('bicicletas.updateEstado');
 Route::delete('/bicicletas/{id}', [BicicletaController::class, 'destroy'])->name('bicicletas.destroy');
 
+Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+Route::get('/inventario', [AdminController::class, 'inventario'])->name('admin.inventario');
+Route::get('/estaciones', [AdminController::class, 'estaciones'])->name('admin.estaciones');
+Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('admin.usuarios');
+Route::get('/alertas', [AdminController::class, 'alertas'])->name('admin.alertas');
+
 // ==========================================
 // RUTAS DE ALQUILER (Protegidas por Auth)
 // ==========================================

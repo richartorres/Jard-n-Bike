@@ -83,11 +83,47 @@ class AdminController extends Controller
         return view('admin.inventario', compact('bicicletas'));
     }
 
+
+
     /**
      * Método index por compatibilidad con la ruta principal /admin
      */
     public function index()
     {
         return $this->dashboard();
+    }
+
+    public function estaciones()
+    {
+        if ($response = $this->verificarAdmin()) {
+            if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
+        }
+        
+        // Consultamos todas las estaciones de la base de datos
+        $estaciones = \App\Models\Estacion::all(); 
+        
+        return view('admin.estaciones', compact('estaciones'));
+    }
+
+    public function usuarios()
+    {
+        if ($response = $this->verificarAdmin()) {
+            if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
+        }
+        $usuarios = \App\Models\User::all();
+        return view('admin.usuarios', compact('usuarios'));
+    }
+
+    public function alertas()
+    {
+        if ($response = $this->verificarAdmin()) {
+            if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
+        }
+        $bicicletasAlerta = Bicicleta::where('nivel_bateria', '<', 20)
+            ->orWhere('estado', 'Mantenimiento')
+            ->get();
+        $alertasCriticasCount = $bicicletasAlerta->count();
+        
+        return view('admin.alertas', compact('bicicletasAlerta', 'alertasCriticasCount'));
     }
 }
