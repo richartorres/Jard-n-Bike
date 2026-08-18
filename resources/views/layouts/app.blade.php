@@ -85,6 +85,7 @@
     </main>
 
     <!-- Script de control para menú móvil lateral -->
+    <!-- Script de control para menú móvil lateral y modales -->
     <script>
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
@@ -99,6 +100,17 @@
         if (menuBtn) menuBtn.addEventListener('click', toggleMenu);
         if (closeBtn) closeBtn.addEventListener('click', toggleMenu);
         if (overlay) overlay.addEventListener('click', toggleMenu);
+
+        // FUNCIONES GLOBALES PARA MODALES
+        window.openModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        window.closeModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.add('hidden');
+        }
     </script>
 </body>
 </html>

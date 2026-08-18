@@ -3,24 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Estacion;
+use App\Models\Bicicleta;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class EstacionController extends Controller
 {
     /**
-     * Lista todas las estaciones activas con sus coordenadas reales de Jardín
+     * Muestra la vista web con la lista de estaciones en el panel operativo.
      */
     public function index()
     {
-        // Traemos solo las estaciones que estén marcadas como Activas
-        $estaciones = Estacion::where('estado', 'Activa')->get();
+        // Traemos todas las estaciones de la base de datos
+        $estaciones = Estacion::all(); 
+        $user = Auth::user();
 
-        // Devolvemos la respuesta estructurada en un JSON limpio para la app
-        return response()->json([
-            'status' => 'success',
-            'count' => $estaciones->count(),
-            'estaciones' => $estaciones
-        ], 200);
+        // Retornamos la vista del panel administrativo de estaciones
+        return view('admin.estaciones', compact('estaciones', 'user'));
     }
 
     /**
@@ -28,7 +27,7 @@ class EstacionController extends Controller
      */
     public function store(Request $request)
     {
-        // Validamos los datos incluyendo las coordenadas
+        // Validamos los datos del modal
         $request->validate([
             'codigo' => 'required|unique:estaciones,codigo',
             'nombre' => 'required',
@@ -37,18 +36,42 @@ class EstacionController extends Controller
             'coordenadas' => 'required',
         ]);
 
-        // Creamos el registro mapeando exactamente las columnas de tu tabla
+        // Creamos el registro en la base de datos
         Estacion::create([
             'codigo' => $request->codigo,
             'nombre' => $request->nombre,
             'direccion' => $request->direccion,
-            'coordenadas' => $request->coordenadas, // Captura las coordenadas del formulario
+            'coordenadas' => $request->coordenadas,
             'capacidad' => $request->capacidad,
-            'energia_disp' => 100,                // Energía inicial al 100%
-            'estado' => 'Activa',                 // Estado activo por defecto
+            'energia_disp' => 100,            // Valor inicial
+            'estado' => 'Activa',              // Estado inicial por defecto
         ]);
 
-        // Redirige de vuelta al panel operativo
-        return redirect()->back();
+        // Redirigimos de vuelta a la misma vista web de manera limpia
+        return redirect()->back()->with('success', '¡Estación creada con éxito!');
+    }
+
+    /**
+     * Cambia el estado operativo de la estación ('Activa' o 'Inactiva').
+     */
+    public function updateEstado(Request $request, $id_estacion)
+    {
+        $estacion = Estacion::findOrFail($id_estacion);
+        
+        $estacion->estado = $request->input('estado');
+        $estacion->save();
+
+        return redirect()->back()->with('success', 'Estado de la estación actualizado con éxito.');
+    }
+
+    /**
+     * Elimina una estación del sistema desde el panel de control.
+     */
+    public function destroy($id_estacion)
+    {
+        $estacion = Estacion::findOrFail($id_estacion);
+        $estacion->delete();
+
+        return redirect()->back()->with('success', 'Estación eliminada correctamente.');
     }
 }
