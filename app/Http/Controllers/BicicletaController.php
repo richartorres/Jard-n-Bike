@@ -82,14 +82,24 @@ class BicicletaController extends Controller
     /**
      * Cambia el estado operativo de la bicicleta (Disponible / Mantenimiento).
      */
-    public function updateEstado(Request $request, $id)
-    {
-        $bici = Bicicleta::findOrFail($id);
-        $bici->estado = $request->estado;
-        $bici->save();
+   public function updateEstado(Request $request, $id)
+{
+    $bicicleta = Bicicleta::findOrFail($id);
 
-        return back()->with('success', 'Estado de la bicicleta actualizado.');
+    // Si viene un nuevo estado en la petición, lo actualizamos
+    if ($request->has('estado')) {
+        $bicicleta->estado = $request->input('estado');
     }
+
+    // Si viene un nivel de batería en la petición, lo actualizamos
+    if ($request->has('nivel_bateria')) {
+        $bicicleta->nivel_bateria = $request->input('nivel_bateria');
+    }
+
+    $bicicleta->save();
+
+    return redirect()->back()->with('success', 'Unidad actualizada y recargada exitosamente.');
+}
 
     /**
      * Elimina una bicicleta del sistema desde el panel de control.
