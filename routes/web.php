@@ -50,6 +50,18 @@ Route::get('/admin', [AdminController::class, 'index'])->name('admin');
 Route::post('/bicicletas/store', [BicicletaController::class, 'store'])->name('bicicletas.store');
 Route::post('/estaciones/store', [EstacionController::class, 'store'])->name('estaciones.store');
 
+Route::patch('/bicicletas/{id}/estado', [BicicletaController::class, 'updateEstado'])->name('bicicletas.updateEstado');
+Route::delete('/bicicletas/{id}', [BicicletaController::class, 'destroy'])->name('bicicletas.destroy');
+
+Route::get('/inventario', [BicicletaController::class, 'inventario'])->name('inventario.index');
+
+// Ruta para la vista de inventario
+Route::get('/inventario', [BicicletaController::class, 'inventario'])->name('inventario.index');
+
+// Rutas de acciones para el inventario
+Route::patch('/bicicletas/{id}/estado', [BicicletaController::class, 'updateEstado'])->name('bicicletas.updateEstado');
+Route::delete('/bicicletas/{id}', [BicicletaController::class, 'destroy'])->name('bicicletas.destroy');
+
 // ==========================================
 // RUTAS DE ALQUILER (Protegidas por Auth)
 // ==========================================

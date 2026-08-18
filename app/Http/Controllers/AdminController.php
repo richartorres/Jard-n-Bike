@@ -11,54 +11,41 @@ use Carbon\Carbon;
 class AdminController extends Controller
 {
     /**
-     * Método principal del panel de administración
+     * Middleware o verificación previa de administrador
      */
-    public function index()
+    private function verificarAdmin()
     {
-        return $this->cargarDatosPanel();
-    }
-
-    /**
-     * Método alternativo por si la ruta apunta a dashboard
-     */
-    public function dashboard()
-    {
-        return $this->cargarDatosPanel();
-    }
-
-    /**
-     * Lógica central para recopilar todos los datos de la base de datos
-     */
-    private function cargarDatosPanel()
-    {
-        // 1. Datos del usuario autenticado
         $user = Auth::user();
-
-        // Verificar si está logueado y si su rol es administrador
         if (!$user || $user->role !== 'admin') {
             return redirect('/mapa')->with('error', 'No tienes permisos de administrador.');
         }
+        return $user;
+    }
 
-        // 2. Tarjetas de Estadísticas (Dinámicas basadas en tus tablas)
-        
-        // Bicicletas activas o disponibles (según los estados de tu BD)
+    /**
+     * Vista 1: Dashboard Principal (Tarjetas y accesos rápidos)
+     */
+    public function dashboard()
+    {
+        if ($response = $this->verificarAdmin()) {
+            if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
+        }
+
+        // Estadísticas para las tarjetas del Dashboard
         $bicicletasActivas = Bicicleta::where('estado', 'Disponible')
             ->orWhere('estado', 'En uso')
             ->orWhere('estado', 'Activo')
             ->count();
         
-        // Viajes realizados hoy (con opción de respaldo total si quieres ver los acumulados de prueba)
         $viajesHoy = Alquiler::whereDate('created_at', Carbon::today())->count();
         if ($viajesHoy === 0) {
-            $viajesHoy = Alquiler::count(); // Muestra el total histórico si la fecha local difiere de la BD
+            $viajesHoy = Alquiler::count();
         }
         
-        // Alertas críticas (Bicicletas con batería menor a 20% o en mantenimiento)
         $alertasCriticas = Bicicleta::where('nivel_bateria', '<', 20)
             ->orWhere('estado', 'Mantenimiento')
             ->count();
 
-        // Ingresos del día (Suma de los alquileres completados, con respaldo histórico si es necesario)
         $ingresosHoy = Alquiler::whereDate('created_at', Carbon::today())
             ->where('estado_alquiler', 'Completado')
             ->sum('valor_total');
@@ -67,20 +54,40 @@ class AdminController extends Controller
             $ingresosHoy = Alquiler::where('estado_alquiler', 'Completado')->sum('valor_total');
         }
 
-        // 3. Control de inventario seguro cargando la relación 'estacion' definida en el modelo
+        // Retorna específicamente la vista del dashboard que creaste
+        return view('admin.dashboard', compact(
+            'bicicletasActivas', 
+            'viajesHoy', 
+            'alertasCriticas', 
+            'ingresosHoy'
+        ));
+    }
+
+    /**
+     * Vista 2: Inventario (Enfocado netamente en la tabla de bicicletas)
+     */
+    public function inventario()
+    {
+        if ($response = $this->verificarAdmin()) {
+            if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
+        }
+
+        // Control de inventario cargando la relación 'estacion' de forma segura
         try {
             $bicicletas = Bicicleta::with('estacion')->get();
         } catch (\Exception $e) {
             $bicicletas = Bicicleta::all();
         }
 
-        return view('admi', compact(
-            'user', 
-            'bicicletasActivas', 
-            'viajesHoy', 
-            'alertasCriticas', 
-            'ingresosHoy', 
-            'bicicletas'
-        ));
+        // Retorna específicamente la vista del inventario que creaste
+        return view('admin.inventario', compact('bicicletas'));
+    }
+
+    /**
+     * Método index por compatibilidad con la ruta principal /admin
+     */
+    public function index()
+    {
+        return $this->dashboard();
     }
 }

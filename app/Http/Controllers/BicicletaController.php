@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bicicleta;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BicicletaController extends Controller
 {
@@ -73,6 +74,40 @@ class BicicletaController extends Controller
     }
 
     public function show(string $id) {}
+
     public function update(Request $request, string $id) {}
-    public function destroy(string $id) {}
+
+    /**
+     * Cambia el estado operativo de la bicicleta (Ej. Disponible / Mantenimiento).
+     */
+    public function updateEstado(Request $request, $id)
+    {
+        $bici = Bicicleta::findOrFail($id);
+        $bici->estado = $request->estado;
+        $bici->save();
+
+        return back()->with('success', 'Estado de la bicicleta actualizado.');
+    }
+
+    /**
+     * Elimina una bicicleta del sistema desde el panel de control.
+     */
+    public function destroy($id)
+    {
+        $bici = Bicicleta::findOrFail($id);
+        $bici->delete();
+
+        return back()->with('success', 'Bicicleta eliminada del sistema.');
+    }
+
+    public function inventario()
+    {
+        // Traemos las bicicletas con su relación de estación y ordenadas por ID
+        $bicicletas = Bicicleta::with('estacionOrigen')->get();
+        
+        // Puedes mandar datos del usuario autenticado si lo requieres
+        $user = Auth::user();
+
+        return view('admin.inventario', compact('bicicletas', 'user'));
+    }
 }

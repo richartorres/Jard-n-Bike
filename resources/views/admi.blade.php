@@ -88,7 +88,7 @@
                 <p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{{ $bicicletasActivas ?? 0 }}</p>
             </div>
             <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
-                <p class="text-[11px] sm:text-xs text-gray-500 font-medium">VIAJES HOY</p>
+                <p class="text-[11px] sm:text-xs text-gray-500 font-medium">VIAJES</p>
                 <p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{{ $viajesHoy ?? 0 }}</p>
             </div>
             <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
@@ -96,7 +96,7 @@
                 <p class="text-2xl sm:text-3xl font-bold text-red-500 mt-1">{{ $alertasCriticas ?? 0 }}</p>
             </div>
             <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
-                <p class="text-[11px] sm:text-xs text-gray-500 font-medium">INGRESOS DEL DÍA</p>
+                <p class="text-[11px] sm:text-xs text-gray-500 font-medium">INGRESOS</p>
                 <p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">${{ number_format($ingresosHoy ?? 0, 0, ',', '.') }}</p>
             </div>
         </div>
@@ -138,8 +138,7 @@
                             <th class="pb-3 font-semibold">ID</th>
                             <th class="pb-3 font-semibold">UBICACIÓN</th>
                             <th class="pb-3 font-semibold">BATERÍA</th>
-                            <th class="pb-3 font-semibold">ESTADO</th>
-                            <th class="pb-3 font-semibold">ACCIONES</th>
+                            <th class="pb-3 font-semibold">ESTADO</th>                         
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -157,18 +156,47 @@
                                         {{ $bici->estado ?? 'Disponible' }}
                                     </span>
                                 </td>
-                                <td class="py-4 text-gray-400 font-bold tracking-widest cursor-pointer hover:text-gray-600">...</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="py-6 text-center text-gray-500">No hay bicicletas registradas en la base de datos.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+                                <td class="py-4 relative">
+                                    <!-- Botón de los tres puntos -->
+                                    <button onclick="toggleDropdown(event, 'dropdown-{{ $bici->id_bicicleta ?? $bici->id }}')" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"></path>
+                                        </svg>
+                                    </button>
+
+                                    <!-- Menú desplegable flotante -->
+                                    <div id="dropdown-{{ $bici->id_bicicleta ?? $bici->id }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 z-30 py-1">
+                                        <!-- Opción: Cambiar estado a Mantenimiento -->
+                                        <form action="{{ route('bicicletas.updateEstado', $bici->id_bicicleta ?? $bici->id) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="estado" value="{{ ($bici->estado ?? '') == 'Mantenimiento' ? 'Disponible' : 'Mantenimiento' }}">
+                                            <button type="submit" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                                                <span>🔧</span> {{ ($bici->estado ?? '') == 'Mantenimiento' ? 'Marcar Disponible' : 'Enviar a Mantenimiento' }}
+                                            </button>
+                                        </form>
+
+                                        <!-- Opción: Eliminar Bicicleta -->
+                                        <form action="{{ route('bicicletas.destroy', $bici->id_bicicleta ?? $bici->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta bicicleta?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="w-full text-left px-4 py-2.5 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-100">
+                                                <span>🗑️</span> Eliminar unidad
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="py-6 text-center text-gray-500">No hay bicicletas registradas en la base de datos.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
 
     <!-- MODAL AGREGAR BICICLETA -->
     <div id="modal-bici" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
@@ -259,6 +287,27 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.add('hidden');
         }
+
+                // Control de menús desplegables en la tabla
+        function toggleDropdown(event, dropdownId) {
+            event.stopPropagation();
+            // Cierra cualquier otro menú abierto
+            document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
+                if (el.id !== dropdownId) el.classList.add('hidden');
+            });
+            // Alterna el actual
+            const dropdown = document.getElementById(dropdownId);
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Cerrar menús al hacer clic fuera
+        window.addEventListener('click', () => {
+            document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+        });
+
+
     </script>
 </body>
 </html>
