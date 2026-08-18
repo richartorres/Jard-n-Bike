@@ -13,9 +13,7 @@
                 <button onclick="openModal('modal-bici')" class="bg-emerald-900 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-medium transition flex-1 sm:flex-none text-center">
                     + Agregar Bici
                 </button>
-                <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-medium transition flex-1 sm:flex-none text-center">
-                    Exportar CSV
-                </button>
+                
             </div>
         </div>
         
@@ -81,34 +79,34 @@
         </div>
     </div>
 
-    <!-- MODAL AGREGAR BICICLETA -->
-    <div id="modal-bici" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg text-gray-900">🚲 Registrar Nueva Bicicleta</h3>
-                <button type="button" onclick="closeModal('modal-bici')" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
-            </div>
-            <form action="{{ url('/bicicletas') }}" method="POST" class="space-y-4">
-                @csrf
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Código QR / Identificador</label>
-                    <input type="text" name="codigo_qr" required placeholder="Ej. QR-JARDIN-004" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Modelo</label>
-                    <input type="text" name="modelo" required placeholder="Ej. Eléctrica Urbana" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Número de Serie</label>
-                    <input type="text" name="num_serie" required placeholder="Ej. SN-998234" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
-                </div>
-                <div class="flex justify-end gap-2 pt-3">
-                    <button type="button" onclick="closeModal('modal-bici')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-medium">Cancelar</button>
-                    <button type="submit" class="bg-emerald-900 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-medium">Guardar Bicicleta</button>
-                </div>
-            </form>
+  <!-- MODAL AGREGAR BICICLETA -->
+<div id="modal-bici" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg text-gray-900">🚲 Registrar Nueva Bicicleta</h3>
+            <button type="button" onclick="closeModal('modal-bici')" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
         </div>
+        <form action="{{ url('/bicicletas') }}" method="POST" class="space-y-4">
+            @csrf
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Código QR / Identificador</label>
+                <input type="text" name="codigo_qr" required placeholder="Ej. QR-JARDIN-004" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Modelo</label>
+                <input type="text" name="modelo" required placeholder="Ej. Eléctrica Urbana" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Número de Serie</label>
+                <input type="text" name="num_serie" required placeholder="Ej. SN-998234" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-700">
+            </div>
+            <div class="flex justify-end gap-2 pt-3">
+                <button type="button" onclick="closeModal('modal-bici')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-medium">Cancelar</button>
+                <button type="submit" class="bg-emerald-900 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-medium">Guardar Bicicleta</button>
+            </div>
+        </form>
     </div>
+</div>
 
     <!-- Scripts de Modales y Dropdowns -->
     <script>

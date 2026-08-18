@@ -5,18 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Bicicleta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Estacion;
 
 class BicicletaController extends Controller
 {
     /**
-     * Simula el escaneo de un código QR y valida restricciones del negocio (SENA).
+     * Simula el escaneo de un código QR y valida restricciones del negocio.
      */
     public function consultarPorQr(string $codigo_qr)
     {
-        // Buscamos la bicicleta por su código QR
         $bicicleta = Bicicleta::where('codigo_qr', $codigo_qr)->first();
 
-        // Si la bicicleta no existe, disparamos error 404
         if (!$bicicleta) {
             return response()->json([
                 'status' => 'error',
@@ -24,16 +23,14 @@ class BicicletaController extends Controller
             ], 404);
         }
 
-        // REGLA DEL NEGOCIO: Bloquear si tiene menos del 20% de batería
         if ($bicicleta->nivel_bateria < 20) {
             return response()->json([
                 'status' => 'error',
                 'bateria' => $bicicleta->nivel_bateria . '%',
                 'message' => 'Alquiler bloqueado: La bicicleta tiene menos del 20% de batería y requiere carga.'
-            ], 400); // 400 Bad Request
+            ], 400);
         }
 
-        // Si pasa la validación, la entrega con éxito
         return response()->json([
             'status' => 'success',
             'message' => 'Bicicleta apta para alquiler',
@@ -41,9 +38,17 @@ class BicicletaController extends Controller
         ], 200);
     }
 
+    /**
+     * Vista principal del inventario para el panel operativo (Web).
+     */
     public function index() 
-    { 
-        return response()->json(Bicicleta::all(), 200); 
+    {
+        $bicicletas = Bicicleta::with('estacionOrigen')->get();
+        $estaciones = Estacion::all();
+        $user = Auth::user();
+
+        // Si prefieres usar la ruta directa a 'admin.inventario'
+        return view('admin.inventario', compact('bicicletas', 'estaciones', 'user'));
     }
 
     /**
@@ -51,26 +56,23 @@ class BicicletaController extends Controller
      */
     public function store(Request $request) 
     {
-        // Validamos los campos que vienen del modal
         $request->validate([
             'codigo_qr' => 'required|unique:bicicletas,codigo_qr',
             'modelo' => 'required',
             'num_serie' => 'required',
         ]);
 
-        // Creamos el registro en la base de datos con los valores por defecto requeridos por tu tabla
         Bicicleta::create([
             'codigo_qr' => $request->codigo_qr,
             'modelo' => $request->modelo,
             'num_serie' => $request->num_serie,
-            'estacion_act' => 1,          // Asignada por defecto a la estación inicial
-            'nivel_bateria' => 100,       // Nueva bicicleta con carga completa
-            'estado' => 'Disponible',     // Lista para ser usada por un usuario
-            'kilometraje' => 0.00,        // Kilometraje inicial en cero
+            'estacion_act' => 1,          // Estación inicial por defecto
+            'nivel_bateria' => 100,       // Carga completa por defecto
+            'estado' => 'Disponible',     // Estado inicial
+            'kilometraje' => 0.00,        // Kilometraje inicial
         ]);
 
-        // Redirige de vuelta al panel para que se vea reflejada inmediatamente
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Bicicleta registrada correctamente.');
     }
 
     public function show(string $id) {}
@@ -78,7 +80,7 @@ class BicicletaController extends Controller
     public function update(Request $request, string $id) {}
 
     /**
-     * Cambia el estado operativo de la bicicleta (Ej. Disponible / Mantenimiento).
+     * Cambia el estado operativo de la bicicleta (Disponible / Mantenimiento).
      */
     public function updateEstado(Request $request, $id)
     {
@@ -100,14 +102,11 @@ class BicicletaController extends Controller
         return back()->with('success', 'Bicicleta eliminada del sistema.');
     }
 
+    /**
+     * Método alternativo de inventario (mapeado a index para evitar conflictos).
+     */
     public function inventario()
     {
-        // Traemos las bicicletas con su relación de estación y ordenadas por ID
-        $bicicletas = Bicicleta::with('estacionOrigen')->get();
-        
-        // Puedes mandar datos del usuario autenticado si lo requieres
-        $user = Auth::user();
-
-        return view('admin.inventario', compact('bicicletas', 'user'));
+        return $this->index();
     }
 }
