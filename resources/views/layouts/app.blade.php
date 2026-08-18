@@ -14,17 +14,17 @@
 </head>
 <body class="bg-gray-50 min-h-[100dvh] flex flex-col lg:flex-row overflow-x-hidden">
 
-    <!-- Botón Menú Móvil (Hamburguesa) -->
-    <div class="lg:hidden bg-[#0A3D27] text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
-        <div class="flex items-center gap-2">
-            <div class="bg-white p-1.5 rounded-full text-[#0A3D27] text-sm">🚲</div>
-            <h1 class="font-bold text-sm">Jardín Bike <span class="text-[10px] text-emerald-300 font-normal uppercase tracking-widest">Ops</span></h1>
-        </div>
+  <!-- Botón Menú Móvil (Hamburguesa) - MOVIDO A LA IZQUIERDA -->
+    <div class="lg:hidden bg-[#0A3D27] text-white p-4 flex items-center gap-3 sticky top-0 z-50 shadow-md">
         <button id="menu-btn" class="p-2 rounded-xl bg-emerald-900/60 hover:bg-emerald-900 text-white focus:outline-none transition">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
             </svg>
         </button>
+        <div class="flex items-center gap-2">
+            <div class="bg-white p-1.5 rounded-full text-[#0A3D27] text-sm">🚲</div>
+            <h1 class="font-bold text-sm">Jardín Bike <span class="text-[10px] text-emerald-300 font-normal uppercase tracking-widest">Ops</span></h1>
+        </div>
     </div>
 
     <!-- Sidebar Estático -->
@@ -49,42 +49,29 @@
             <a href="{{ url('/usuarios') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('usuarios*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">👥 Usuarios</a>
             <a href="{{ url('/alertas') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('alertas*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">⚠️ Alertas</a>
         </nav>
-
-        <!-- Datos del Usuario Logueado -->
-        <div class="flex items-center gap-3 pt-6 border-t border-emerald-900 mt-4">
-            <div class="bg-amber-400 w-9 h-9 rounded-full flex items-center justify-center font-bold text-[#0A3D27] shrink-0">
-                {{ strtoupper(substr($user->name ?? 'Admin', 0, 2)) }}
-            </div>
-            <div class="text-xs truncate">
-                <p class="font-bold truncate">{{ $user->name ?? 'Usuario' }}</p>
-                <p class="text-emerald-300">Administrador · Jardín</p>
-            </div>
-        </div>
     </aside>
 
     <!-- Overlay móvil -->
     <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
     <!-- Contenido Principal -->
-    <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-            <div>
-                <p class="text-[11px] sm:text-xs text-gray-500 uppercase tracking-widest font-semibold">Panel Operativo</p>
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Saludos, {{ explode(' ', trim($user->name ?? 'Richar'))[0]}} 🚲 </h2>
-            </div>
-             <!-- Botón conectado para ver la app cliente -->
-            <a href="{{ url('/mapa') }}" class="w-full sm:w-auto">
-                <button class="w-full sm:w-auto bg-[#FFBC00] hover:bg-[#F0B000] text-[#101828] px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-sm text-center flex items-center justify-center gap-2">
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden flex flex-col justify-between">
+        
+        <div>
+            <!-- AQUÍ SE INYECTA EL CONTENIDO DE CADA VISTA (INVENTARIO, DASHBOARD, ETC.) -->
+            @yield('content')
+        </div>
+
+        <!-- Botón conectado para ver la app cliente (Movido abajo a la derecha) -->
+        <div class="flex justify-end mt-12 mb-4">
+            <a href="{{ url('/mapa') }}">
+                <button class="bg-[#FFBC00] hover:bg-[#F0B000] text-[#101828] px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-sm text-center flex items-center justify-center gap-2">
                     <span>🗺️</span> VER APP CLIENTE
                 </button>
             </a>
-        </header>
-
-        <!-- AQUÍ SE INYECTA EL CONTENIDO DE CADA VISTA (INVENTARIO, DASHBOARD, ETC.) -->
-        @yield('content')
+        </div>
     </main>
 
-    <!-- Script de control para menú móvil lateral -->
     <!-- Script de control para menú móvil lateral y modales -->
     <script>
         const sidebar = document.getElementById('sidebar');

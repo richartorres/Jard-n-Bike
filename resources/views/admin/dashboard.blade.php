@@ -14,17 +14,17 @@
 </head>
 <body class="bg-gray-50 min-h-[100dvh] flex flex-col lg:flex-row overflow-x-hidden">
 
-    <!-- Botón Menú Móvil (Hamburguesa) -->
-    <div class="lg:hidden bg-[#0A3D27] text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
-        <div class="flex items-center gap-2">
-            <div class="bg-white p-1.5 rounded-full text-[#0A3D27] text-sm">🚲</div>
-            <h1 class="font-bold text-sm">Jardín Bike <span class="text-[10px] text-emerald-300 font-normal uppercase tracking-widest">Ops</span></h1>
-        </div>
+  <!-- Botón Menú Móvil (Hamburguesa) - MOVIDO A LA IZQUIERDA -->
+    <div class="lg:hidden bg-[#0A3D27] text-white p-4 flex items-center gap-3 sticky top-0 z-50 shadow-md">
         <button id="menu-btn" class="p-2 rounded-xl bg-emerald-900/60 hover:bg-emerald-900 text-white focus:outline-none transition">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
             </svg>
         </button>
+        <div class="flex items-center gap-2">
+            <div class="bg-white p-1.5 rounded-full text-[#0A3D27] text-sm">🚲</div>
+            <h1 class="font-bold text-sm">Jardín Bike <span class="text-[10px] text-emerald-300 font-normal uppercase tracking-widest">Ops</span></h1>
+        </div>
     </div>
 
     <!-- Sidebar -->
