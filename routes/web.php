@@ -52,12 +52,20 @@ Route::get('/alertas', [AdminController::class, 'alertas'])->name('admin.alertas
 
 // Acciones de administración (Creación y gestión)
 Route::post('/bicicletas', [BicicletaController::class, 'store'])->name('bicicletas.store'); 
-Route::post('/estaciones', [EstacionController::class, 'store'])->name('estaciones.store'); // <-- Cambiado de '/estaciones/store' a '/estaciones'
+Route::post('/estaciones', [EstacionController::class, 'store'])->name('estaciones.store'); 
 Route::patch('/estaciones/{id_estacion}/estado', [EstacionController::class, 'updateEstado'])->name('estaciones.updateEstado');
 Route::delete('/estaciones/{id_estacion}', [EstacionController::class, 'destroy'])->name('estaciones.destroy');
 
 Route::patch('/bicicletas/{id}/estado', [BicicletaController::class, 'updateEstado'])->name('bicicletas.updateEstado');
 Route::delete('/bicicletas/{id}', [BicicletaController::class, 'destroy'])->name('bicicletas.destroy');
+
+// ==========================================
+// ACCIONES DE GESTIÓN DE USUARIOS (Nuevas)
+// ==========================================
+Route::patch('/usuarios/{id}/role', [AdminController::class, 'updateRole'])->name('admin.usuarios.update-role');
+Route::delete('/usuarios/{id}', [AdminController::class, 'destroyUser'])->name('admin.usuarios.destroy');
+
+
 // ==========================================
 // RUTAS DE ALQUILER (Protegidas por Auth)
 // ==========================================

@@ -126,4 +126,45 @@ class AdminController extends Controller
         
         return view('admin.alertas', compact('bicicletasAlerta', 'alertasCriticasCount'));
     }
+
+    /**
+     * Cambiar el rol de un usuario (Cliente <-> Admin)
+     */
+    public function updateRole(Request $request, $id)
+    {
+        if ($response = $this->verificarAdmin()) {
+            if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
+        }
+
+        $user = \App\Models\User::findOrFail($id);
+        
+        // Validar que el rol recibido sea válido
+        $nuevoRol = $request->input('role');
+        if (in_array($nuevoRol, ['admin', 'cliente'])) {
+            $user->role = $nuevoRol;
+            $user->save();
+        }
+
+        return redirect()->back()->with('success', 'Rol de usuario actualizado correctamente.');
+    }
+
+    /**
+     * Eliminar la cuenta de un usuario permanentemente
+     */
+    public function destroyUser($id)
+    {
+        if ($response = $this->verificarAdmin()) {
+            if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
+        }
+
+        // Evitar que el administrador borre su propia cuenta activa por error
+        if (Auth::id() == $id) {
+            return redirect()->back()->with('error', 'No puedes eliminar tu propia cuenta de administrador.');
+        }
+
+        $user = \App\Models\User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->back()->with('success', 'Usuario eliminado correctamente.');
+    }
 }
