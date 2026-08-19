@@ -1,14 +1,8 @@
 FROM php:8.2-apache
 
-# Instalar dependencias del sistema y extensiones necesarias para Laravel
+# Instalar dependencias del sistema y extensiones necesarias
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip
+    git curl libpng-dev libonig-dev libxml2-dev zip unzip
 
 # Limpiar caché
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -25,34 +19,32 @@ WORKDIR /var/www/html
 # Copiar el código del proyecto
 COPY . .
 
-# Copiar el .env.example como .env temporal para que Laravel permita compilar dependencias sin errores
-RUN php -r "file_exists('.env') || copy('.env.example', '.env');"
+# Copiar .env y preparar entorno
+RUN cp .env.example .env
 
-# Instalar dependencias de Composer
+# Instalar dependencias
 RUN composer install --no-dev --optimize-autoloader
 
-# Generar la llave de la aplicación si no está definida en el build
-RUN php artisan key:generate --force
+# --- ¡NUEVO! Ejecutar migraciones ---
+# NOTA: Esto solo funcionará si las variables de entorno de BD 
+# están accesibles durante el build, o si tienes un script de inicio.
+# Alternativa: Ejecutar esto en un "Start Command" en Render (ver abajo)
+# RUN php artisan migrate --force 
 
-# Configurar permisos para storage y bootstrap/cache
+# Configurar permisos
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Cambiar el document root de Apache al directorio public de Laravel
+# Cambiar document root de Apache
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
-
-# Habilitar mod_rewrite de Apache para las rutas amigables de Laravel
 RUN a2enmod rewrite
 
-# Permitir archivos .htaccess en Apache para las rutas de Laravel
+# Configurar Apache y puerto
 RUN echo '<Directory /var/www/html/public/>\n\
     Options Indexes FollowSymLinks\n\
     AllowOverride All\n\
-    Require all granted\n\
-</Directory>' >> /etc/apache2/apache2.conf
-
-# Render asigna dinámicamente un puerto mediante la variable $PORT
+    Require all granted\n</Directory>' >> /etc/apache2/apache2.conf
 RUN sed -i 's/80/${PORT}/g' /etc/apache2/ports.conf /etc/apache2/sites-available/*.conf
 
 EXPOSE ${PORT}
