@@ -88,7 +88,7 @@
                 <p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{{ $bicicletasActivas ?? 0 }}</p>
             </div>
             <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
-                <p class="text-[11px] sm:text-xs text-gray-500 font-medium">VIAJES</p>
+                <p class="text-[11px] sm:text-xs text-gray-500 font-medium">VIAJES DE HOY</p>
                 <p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{{ $viajesHoy ?? 0 }}</p>
             </div>
             <div class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
