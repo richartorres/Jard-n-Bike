@@ -25,8 +25,14 @@ WORKDIR /var/www/html
 # Copiar el código del proyecto
 COPY . .
 
+# Copiar el .env.example como .env temporal para que Laravel permita compilar dependencias sin errores
+RUN php -r "file_exists('.env') || copy('.env.example', '.env');"
+
 # Instalar dependencias de Composer
 RUN composer install --no-dev --optimize-autoloader
+
+# Generar la llave de la aplicación si no está definida en el build
+RUN php artisan key:generate --force
 
 # Configurar permisos para storage y bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
