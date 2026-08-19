@@ -38,11 +38,6 @@ RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available
 # Habilitar mod_rewrite de Apache para las rutas amigables de Laravel
 RUN a2enmod rewrite
 
-# Limpiar caché de Laravel durante la construcción para evitar errores de ruta
-RUN php artisan config:clear
-RUN php artisan cache:clear
-RUN php artisan route:clear
-
 # Exponer el puerto 80 que es el que lee Render
 EXPOSE 80
 
