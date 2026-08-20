@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jardín Bike - Mapa</title>
     
+    <!-- Tailwind CSS CDN seguro con https:// explícito -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Leaflet CSS con https:// explícito -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Google Fonts con https:// explícito -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,10 +20,10 @@
         .no-leaflet-attribution .leaflet-control-attribution { display: none; }
     </style>
 
+    <!-- HTML5 QR Code CDN seguro con https:// explícito -->
     <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body class="bg-gray-100 overflow-hidden relative antialiased">
-
 
     <div id="map" class="no-leaflet-attribution"></div>
 
@@ -40,6 +43,7 @@
         </button>
     </div>
 
+    <!-- Leaflet JS con https:// explícito -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const map = L.map('map').setView([5.59833, -75.81922], 16);
@@ -65,7 +69,6 @@
                     html5QrCode.stop().then(() => {
                         document.getElementById('qr-reader').classList.add('hidden');
                         
-                        // 🚀 AQUÍ ESTÁ EL CAMBIO CLAVE: Procesamos la respuesta JSON del servidor
                         fetch("{{ url('/iniciar-viaje') }}", {
                             method: 'POST',
                             headers: {
@@ -77,10 +80,9 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.status === 'success') {
-                                // Forzamos la navegación al enlace de redirección que envía el controlador
                                 window.location.href = data.redirect; 
                             } else {
-                                alert(data.message); // Muestra errores (ej: batería baja, bici ocupada)
+                                alert(data.message);
                             }
                         })
                         .catch(err => {

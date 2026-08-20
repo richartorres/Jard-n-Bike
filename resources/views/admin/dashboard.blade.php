@@ -14,7 +14,7 @@
 </head>
 <body class="bg-gray-50 min-h-[100dvh] flex flex-col lg:flex-row overflow-x-hidden">
 
-  <!-- Botón Menú Móvil (Hamburguesa) - MOVIDO A LA IZQUIERDA -->
+    <!-- Botón Menú Móvil (Hamburguesa) -->
     <div class="lg:hidden bg-[#0A3D27] text-white p-4 flex items-center gap-3 sticky top-0 z-50 shadow-md">
         <button id="menu-btn" class="p-2 rounded-xl bg-emerald-900/60 hover:bg-emerald-900 text-white focus:outline-none transition">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@
             </div>
         </div>
 
-        <!-- Accesos Rápidos para Operaciones Clave (Agregar Estación y Bicicleta) -->
+        <!-- Accesos Rápidos para Operaciones Clave -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
             <div class="bg-emerald-900 text-white p-5 rounded-2xl flex justify-between items-center shadow-md">
                 <div>
@@ -123,9 +123,6 @@
                 </button>
             </div>
         </div>
-
-      
-        
     </main>
 
     <!-- MODAL AGREGAR BICICLETA -->
@@ -194,7 +191,7 @@
         </div>
     </div>
 
-    <!-- Script de control para menú móvil lateral, modales y tablas -->
+    <!-- Script de control para menú móvil lateral y modales -->
     <script>
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
@@ -217,21 +214,6 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.add('hidden');
         }
-
-        function toggleDropdown(event, dropdownId) {
-            event.stopPropagation();
-            document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
-                if (el.id !== dropdownId) el.classList.add('hidden');
-            });
-            const dropdown = document.getElementById(dropdownId);
-            dropdown.classList.toggle('hidden');
-        }
-
-        window.addEventListener('click', () => {
-            document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
-                el.classList.add('hidden');
-            });
-        });
     </script>
 </body>
 </html>

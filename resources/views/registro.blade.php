@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Registro - Jardín Bike</title>
+    <!-- Tailwind CSS Play CDN Oficial y Seguro con https:// -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts con https:// explícito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
 <body class="bg-[#F8F9FA] min-h-[100dvh] flex flex-col justify-center items-center p-4 sm:p-6">
 
@@ -52,7 +58,7 @@
                 </div>
             </div>
 
-            <!-- Correo electrónico (Necesario para iniciar sesión después) -->
+            <!-- Correo electrónico -->
             <div>
                 <label class="block text-xs font-semibold text-[#344054] mb-1.5 uppercase tracking-wide">Correo Electrónico</label>
                 <div class="relative flex items-center">
@@ -63,7 +69,7 @@
                 </div>
             </div>
 
-            <!-- Contraseña (Obligatoria para la seguridad de la BD) -->
+            <!-- Contraseña -->
             <div>
                 <label class="block text-xs font-semibold text-[#344054] mb-1.5 uppercase tracking-wide">Contraseña</label>
                 <div class="relative flex items-center">
@@ -81,7 +87,7 @@
                     <span class="absolute left-4 text-[#98A2B3]">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                     </span>
-                    <input type="tel" name="phone" placeholder="+57 300 000 0000" class="w-full pl-12 pr-4 py-3.5 bg-gray-50 sm:bg-white rounded-2xl border border-gray-200 outline-none focus:border-[#105B3A] focus:ring-2 focus:ring-[#105B3A]/20 text-base transition placeholder:text-gray-400">
+                    <input type="tel" name="phone" value="{{ old('phone') }}" placeholder="+57 300 000 0000" class="w-full pl-12 pr-4 py-3.5 bg-gray-50 sm:bg-white rounded-2xl border border-gray-200 outline-none focus:border-[#105B3A] focus:ring-2 focus:ring-[#105B3A]/20 text-base transition placeholder:text-gray-400">
                 </div>
             </div>
 
@@ -93,7 +99,7 @@
                 <p class="text-xs text-gray-600 leading-relaxed">Tus datos viajan cifrados de forma segura en la base de datos.</p>
             </div>
 
-            <!-- Botón de confirmar como type="submit" -->
+            <!-- Botón de confirmar -->
             <button type="submit" class="block w-full text-center py-4 rounded-2xl font-bold text-[#101828] bg-[#FFBC00] hover:bg-[#F0B000] transition shadow-lg shadow-amber-400/20 text-base">
                 Confirmar y Registrarse
             </button>
