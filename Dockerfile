@@ -46,4 +46,4 @@ RUN sed -i "s/:80/:\\${PORT}/g" /etc/apache2/sites-available/000-default.conf
 EXPOSE 10000
 
 # Comando de inicio para arrancar Apache en primer plano
-CMD ["apache2-foreground"]
+CMD ["apache2-foreground"] 
