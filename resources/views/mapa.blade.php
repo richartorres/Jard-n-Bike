@@ -59,13 +59,20 @@
         });
 
         const html5QrCode = new Html5Qrcode("reader");
+        let escaneandoProcesado = false; // Bandera para evitar disparos múltiples
 
         function abrirScanner() {
+            escaneandoProcesado = false; // Reiniciamos al abrir
             document.getElementById('qr-reader').classList.remove('hidden');
+            
             html5QrCode.start(
                 { facingMode: "environment" },
                 { fps: 10, qrbox: 250 },
                 (decodedText) => {
+                    // Si ya se procesó un código, ignoramos las lecturas repetidas de la cámara
+                    if (escaneandoProcesado) return;
+                    escaneandoProcesado = true;
+
                     html5QrCode.stop().then(() => {
                         document.getElementById('qr-reader').classList.add('hidden');
                         
@@ -77,16 +84,25 @@
                             },
                             body: JSON.stringify({ bicicleta_id: decodedText })
                         })
-                        .then(response => response.json())
+                        .then(response => {
+                            if (response.redirected) {
+                                window.location.href = response.url;
+                                return;
+                            }
+                            return response.json();
+                        })
                         .then(data => {
-                            if (data.status === 'success') {
+                            if (data && data.status === 'success') {
                                 window.location.href = data.redirect; 
-                            } else {
+                            } else if (data) {
                                 alert(data.message);
+                                escaneandoProcesado = false; // Permitir reintentar si hubo error controlado
                             }
                         })
                         .catch(err => {
                             console.error("Error en la petición: ", err);
+                            alert("Ocurrió un error al procesar el viaje.");
+                            escaneandoProcesado = false;
                         });
 
                     }).catch(err => {
@@ -98,9 +114,10 @@
 
         function cerrarScanner() {
             if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop();
+                html5QrCode.stop().catch(e => console.log(e));
             }
             document.getElementById('qr-reader').classList.add('hidden');
+            escaneandoProcesado = false;
         }
     </script>
 </body>
