@@ -38,8 +38,12 @@ RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available
 # Habilitar mod_rewrite de Apache para las rutas amigables de Laravel
 RUN a2enmod rewrite
 
-# Exponer el puerto 80 que es el que lee Render
-EXPOSE 80
+# Configurar Apache para que escuche en el puerto que Render asigna dinámicamente ($PORT)
+RUN sed -i "s/Listen 80/Listen \${PORT}/g" /etc/apache2/ports.conf
+RUN sed -i "s/:80/:\\${PORT}/g" /etc/apache2/sites-available/000-default.conf
+
+# Exponer el puerto variable (Render lo requiere)
+EXPOSE 10000
 
 # Comando de inicio para arrancar Apache en primer plano
 CMD ["apache2-foreground"]
