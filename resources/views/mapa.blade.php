@@ -101,7 +101,7 @@
                         })
                         .catch(err => {
                             console.error("Error en la petición: ", err);
-                            alert("Ocurrió un error al procesar el viaje.");
+                            alert("Error real: " + err);
                             escaneandoProcesado = false;
                         });
 
