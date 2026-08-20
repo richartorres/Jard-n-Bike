@@ -76,7 +76,8 @@
                     html5QrCode.stop().then(() => {
                         document.getElementById('qr-reader').classList.add('hidden');
                         
-                        fetch("{{ url('/iniciar-viaje') }}", {
+                        // RUTA RELATIVA PURA PARA EVITAR FALLOS DE RED EN HTTPS (Render)
+                        fetch("/iniciar-viaje", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -96,7 +97,7 @@
                                 window.location.href = data.redirect; 
                             } else if (data) {
                                 alert(data.message);
-                                escaneandoProcesado = false; // Permitir reintentar si hubo error controlado
+                                escaneandoProsesado = false; // Permitir reintentar si hubo error controlado
                             }
                         })
                         .catch(err => {
