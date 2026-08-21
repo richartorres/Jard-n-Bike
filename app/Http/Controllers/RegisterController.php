@@ -11,11 +11,11 @@ class RegisterController extends Controller
 {
     public function store(Request $request)
     {
-        // 1. Validamos que los campos obligatorios cumplan con las reglas y sean únicos en la tabla users
+       // 1. Validamos que los campos obligatorios cumplan con las reglas y sean únicos en la tabla users
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'], // <-- Agregamos '|confirmed' aquí
         ]);
 
         // 2. Creamos el usuario en la base de datos de XAMPP con contraseña cifrada

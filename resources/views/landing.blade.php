@@ -68,7 +68,7 @@
                 </div>
                 <div>
                     <p class="font-semibold text-xs text-gray-900">Estaciones en el pueblo</p>
-                    <p class="text-[11px] text-gray-500">6 puntos estratégicos de retiro</p>
+                    <p class="text-[11px] text-gray-500">puntos estratégicos de retiro</p>
                 </div>
             </div>
 
@@ -78,7 +78,7 @@
                 </div>
                 <div>
                     <p class="font-semibold text-xs text-gray-900">Garantía segura</p>
-                    <p class="text-[11px] text-gray-500">Tarjeta vinculada como respaldo</p>
+                    <p class="text-[11px] text-gray-500">vinculadas con respaldo</p>
                 </div>
             </div>
         </div>
@@ -96,7 +96,7 @@
         </div>
 
         <!-- Tarifa Footer -->
-        <p class="text-center text-[11px] text-gray-400 mt-5">Tarifa $4.000 COP · USD $1 cada 15 minutos</p>
+        <p class="text-center text-[11px] text-gray-400 mt-5">Tarifa $4.000 COP · cada 15 minutos</p>
     </div>
 
 </body>
