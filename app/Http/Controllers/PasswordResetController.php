@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password as PasswordFacade;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 
 class PasswordResetController extends Controller
 {
@@ -16,7 +16,7 @@ class PasswordResetController extends Controller
         return view('auth.forgot-password');
     }
 
-    // Enviar el correo con el link usando el sistema SMTP estándar de Laravel (Brevo)
+    // Enviar el correo con el link mediante la API HTTP de Brevo
     public function sendResetLinkEmail(Request $request) {
         $request->validate(['email' => 'required|email']);
 
@@ -33,17 +33,38 @@ class PasswordResetController extends Controller
         // 3. Crear la URL absoluta segura
         $url = url(route('password.reset', ['token' => $token, 'email' => $user->email], false));
 
-        // 4. Enviar mediante el sistema de correo SMTP configurado
-        try {
-            Mail::send('auth.emails.reset-password', ['url' => $url, 'user' => $user], function ($message) use ($user) {
-                $message->to($user->email);
-                $message->subject('Restablecer contraseña - Jardín Bike');
-            });
+        // 4. Enviar mediante la API HTTP de Brevo (Puerto 443 libre en Render)
+        $response = Http::withHeaders([
+                'api-key' => env('BREVO_API_KEY'),
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ])->post('https://api.brevo.com/v3/smtp/email', [
+                'sender' => [
+                    'name' => config('mail.from.name', 'Jardín Bike'),
+                    'email' => config('mail.from.address', 'richardgulfo321@gmail.com')
+                ],
+                'to' => [
+                    [
+                        'email' => $user->email,
+                        'name' => $user->name ?? 'Usuario'
+                    ]
+                ],
+                'subject' => 'Restablecer contraseña - Jardín Bike',
+                'htmlContent' => '
+                    <div style="font-family: Inter, sans-serif; padding: 20px; color: #101828;">
+                        <h2 style="color: #105B3A;">Jardín Bike</h2>
+                        <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente botón para continuar:</p>
+                        <a href="' . $url . '" style="display: inline-block; background-color: #FFBC00; color: #101828; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-top: 10px;">Restablecer contraseña</a>
+                        <p style="margin-top: 20px; font-size: 12px; color: #667085;">Si no solicitaste este cambio, puedes ignorar este mensaje.</p>
+                    </div>
+                '
+            ]);
 
+        if ($response->successful()) {
             return back()->with('status', 'Hemos enviado un link de recuperación a tu correo.');
-        } catch (\Exception $e) {
-            return back()->withErrors(['email' => 'No se pudo enviar el correo en este momento. Inténtalo más tarde.']);
         }
+
+        return back()->withErrors(['email' => 'No se pudo enviar el correo en este momento. Inténtalo más tarde.']);
     }
 
     // Mostrar formulario para poner la nueva contraseña
