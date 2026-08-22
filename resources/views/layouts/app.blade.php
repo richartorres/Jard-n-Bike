@@ -48,7 +48,7 @@
 
         <nav class="space-y-2 flex-1 overflow-y-auto no-scrollbar">
             <a href="{{ url('/admin') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('admin*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">📊 Dashboard</a>
-            <a href="{{ url('/inventario') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('inventario*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">🚲 Inventario</a>
+            <a href="{{ url('/inventario') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('inventario*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">🚲 Bicicletas</a>
             <a href="{{ url('/estaciones') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('estaciones*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">📍 Estaciones</a>
             <a href="{{ url('/usuarios') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('usuarios*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">👥 Usuarios</a>
             <a href="{{ url('/alertas') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('alertas*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">⚠️ Alertas</a>

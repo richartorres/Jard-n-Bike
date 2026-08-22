@@ -71,7 +71,9 @@
         </div>
 
         <div class="flex justify-end">
-            <button type="button" class="text-xs text-[#105B3A] font-semibold hover:text-[#FFBC00] transition">¿Olvidaste tu contraseña?</button>
+            <a href="{{ route('password.request') }}" class="text-xs text-[#105B3A] font-semibold hover:text-[#FFBC00] transition">
+                ¿Olvidaste tu contraseña?
+            </a>
         </div>
 
         <button type="submit" class="w-full bg-[#FFBC00] hover:bg-[#E6A900] text-[#101828] font-bold py-4 rounded-2xl transition shadow-lg shadow-amber-400/20 mt-2 flex items-center justify-center gap-2 text-base">

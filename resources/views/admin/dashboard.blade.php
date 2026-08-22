@@ -44,7 +44,7 @@
 
         <nav class="space-y-2 flex-1 overflow-y-auto no-scrollbar">
             <a href="{{ url('/admin') }}" class="flex items-center gap-3 bg-emerald-900/50 p-3 rounded-xl text-sm font-medium transition">📊 Dashboard</a>
-            <a href="{{ url('/inventario') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white hover:bg-emerald-900/30 rounded-xl transition text-sm">🚲 Inventario</a>
+            <a href="{{ url('/inventario') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white hover:bg-emerald-900/30 rounded-xl transition text-sm">🚲 Bicicletas</a>
             <a href="{{ url('/estaciones') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white hover:bg-emerald-900/30 rounded-xl transition text-sm">📍 Estaciones</a>
             <a href="{{ url('/usuarios') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white hover:bg-emerald-900/30 rounded-xl transition text-sm">👥 Usuarios</a>
             <a href="{{ url('/alertas') }}" class="flex items-center gap-3 p-3 text-emerald-200 hover:text-white hover:bg-emerald-900/30 rounded-xl transition text-sm">⚠️ Alertas</a>
