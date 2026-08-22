@@ -82,11 +82,12 @@ Route::middleware(['auth'])->group(function () {
     
     // Finalizar viaje pasando el ID exacto del alquiler
     Route::post('/finalizar-viaje/{id}', [AlquilerController::class, 'finalizarViaje']);
-
-    
-        // restablecer contraseña
-    Route::get('/olvide-contrasena', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
-    Route::post('/olvide-contrasena', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
-    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
 });
+
+// ==========================================
+// RUTAS DE RECUPERACIÓN DE CONTRASEÑA (PÚBLICAS)
+// ==========================================
+Route::get('/olvide-contrasena', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/olvide-contrasena', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
