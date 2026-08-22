@@ -53,7 +53,7 @@ class PasswordResetController extends Controller
             return back()->with('status', 'Hemos enviado un link de recuperación a tu correo.');
         }
 
-        return back()->withErrors(['email' => 'No se pudo enviar el correo en este momento. Inténtalo más tarde.']);
+       return back()->withErrors(['email' => 'Error de Resend: ' . $response->body()]);
     }
 
     // Mostrar formulario para poner la nueva contraseña
