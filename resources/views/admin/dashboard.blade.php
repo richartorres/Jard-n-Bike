@@ -67,16 +67,18 @@
 
     <!-- Contenido Principal -->
     <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+        
+        <!-- Cabecera reorganizada: Saludo a la izq, Botón "Ver App" pequeño a la der -->
+        <header class="flex justify-between items-end gap-2 mb-6 sm:mb-8">
             <div>
-                <p class="text-[11px] sm:text-xs text-gray-500 uppercase tracking-widest font-semibold">Panel Operativo</p>
+                <p class="text-[10px] sm:text-xs text-gray-500 uppercase tracking-widest font-semibold">Panel Operativo</p>
                 <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Saludos, {{ explode(' ', trim($user->name ?? 'Richar'))[0] }} 🚲</h2>
             </div>
 
-            <!-- Botón conectado para ver la app cliente -->
-            <a href="{{ url('/mapa') }}" class="w-full sm:w-auto">
-                <button class="w-full sm:w-auto bg-[#FFBC00] hover:bg-[#F0B000] text-[#101828] px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-sm text-center flex items-center justify-center gap-2">
-                    <span>🗺️</span> VER APP CLIENTE
+            <!-- Botón Ver App Cliente compacto -->
+            <a href="{{ url('/mapa') }}" class="shrink-0">
+                <button class="bg-[#FFBC00] hover:bg-[#F0B000] text-[#101828] px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-1.5">
+                    <span>🗺️</span> <span>Ver App</span>
                 </button>
             </a>
         </header>
@@ -101,24 +103,26 @@
             </div>
         </div>
 
-        <!-- Accesos Rápidos para Operaciones Clave -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-            <div class="bg-emerald-900 text-white p-5 rounded-2xl flex justify-between items-center shadow-md">
+        <!-- Accesos Rápidos: Una al lado de la otra en móvil (grid-cols-2) -->
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-8">
+            <!-- Gestión de Bicicletas -->
+            <div class="bg-emerald-900 text-white p-4 sm:p-5 rounded-2xl flex flex-col justify-between shadow-md">
                 <div>
-                    <h3 class="font-bold text-base">Gestión de Bicicletas</h3>
-                    <p class="text-xs text-emerald-200 mt-0.5">Agrega nuevas unidades al sistema.</p>
+                    <h3 class="font-bold text-xs sm:text-base leading-snug">Gestión de Bicicletas</h3>
+                    <p class="text-[10px] sm:text-xs text-emerald-200 mt-1 hidden sm:block">Agrega nuevas unidades al sistema.</p>
                 </div>
-                <button onclick="openModal('modal-bici')" class="bg-white text-emerald-900 hover:bg-emerald-50 px-4 py-2 rounded-xl text-xs font-bold transition shadow">
+                <button onclick="openModal('modal-bici')" class="mt-3 bg-white text-emerald-900 hover:bg-emerald-50 px-3 py-2 rounded-xl text-[11px] sm:text-xs font-bold transition shadow text-center">
                     + Agregar Bici
                 </button>
             </div>
 
-            <div class="bg-[#101828] text-white p-5 rounded-2xl flex justify-between items-center shadow-md">
+            <!-- Gestión de Estaciones -->
+            <div class="bg-[#101828] text-white p-4 sm:p-5 rounded-2xl flex flex-col justify-between shadow-md">
                 <div>
-                    <h3 class="font-bold text-base">Gestión de Estaciones</h3>
-                    <p class="text-xs text-gray-300 mt-0.5">Da de alta nuevos puntos de anclaje.</p>
+                    <h3 class="font-bold text-xs sm:text-base leading-snug">Gestión de Estaciones</h3>
+                    <p class="text-[10px] sm:text-xs text-gray-300 mt-1 hidden sm:block">Da de alta nuevos puntos de anclaje.</p>
                 </div>
-                <button onclick="openModal('modal-estacion')" class="bg-[#FFBC00] hover:bg-[#F0B000] text-[#101828] px-4 py-2 rounded-xl text-xs font-bold transition shadow">
+                <button onclick="openModal('modal-estacion')" class="mt-3 bg-[#FFBC00] hover:bg-[#F0B000] text-[#101828] px-3 py-2 rounded-xl text-[11px] sm:text-xs font-bold transition shadow text-center">
                     + Nueva Estación
                 </button>
             </div>
