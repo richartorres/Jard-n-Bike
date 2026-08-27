@@ -76,7 +76,11 @@
         const map = L.map('map', { zoomControl: false }).setView([5.59833, -75.81922], 16);
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+        // Mapa base cambiado a OpenStreetMap libre (sin requerir API Key)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
         // 2. Cargar estaciones desde Laravel
         const estaciones = JSON.parse('{!! json_encode($estaciones) !!}');
