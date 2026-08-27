@@ -47,7 +47,12 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const map = L.map('map').setView([5.59833, -75.81922], 16);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+        
+        // Mapa base cambiado a OpenStreetMap libre (sin requerir API Key)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
         const estaciones = JSON.parse('{!! json_encode($estaciones) !!}');
         estaciones.forEach(estacion => {
@@ -97,7 +102,7 @@
                                 window.location.href = data.redirect; 
                             } else if (data) {
                                 alert(data.message);
-                                escaneandoProsesado = false; // Permitir reintentar si hubo error controlado
+                                escaneandoProcesado = false; // Permitir reintentar si hubo error controlado
                             }
                         })
                         .catch(err => {
