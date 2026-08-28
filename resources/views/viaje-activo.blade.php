@@ -132,7 +132,7 @@
                 fitSelectedRoutes: true,
                 showAlternatives: false,
                 lineOptions: {
-                    styles: [{ color: '#0edbdba9', weight: 6, opacity: 0.85 }]
+                    styles: [{ color: '#2563EB', weight: 6, opacity: 0.85 }]
                 },
                 createMarker: function() { return null; }
             }).addTo(map);
