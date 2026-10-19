@@ -1,59 +1,59 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Jardín Bike 🚲⚡ - Plataforma de Alquiler de Bicicletas Eléctricas
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Jardín Bike** es una solución web full-stack para el sistema de movilidad limpia y alquiler de bicicletas eléctricas (*e-bikes*) en el municipio de Jardín, Antioquia. Diseñada con arquitectura basada en micro-reglas de negocio, navegación tipo Uber/Rappi para el trazado de rutas entre estaciones estratégicas y un panel de administración en tiempo real para el control de la flota.
 
-## About Laravel
+🔗 **Prueba la aplicación en vivo (Producción):** [https://jard-n-bike.onrender.com](https://jard-n-bike.onrender.com)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Características Principales y Reglas de Negocio
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🚲 Módulo de Cliente / Usuario
+- **Desbloqueo mediante Código QR:** Escaneo y validación de la unidad para iniciar el recorrido de forma inmediata.
+- **Cobro Recurrente por Tiempo:** Cálculo automático de tarifas (tarifario base: $4.000 COP por cada bloque de 15 minutos).
+- **Rutas e Integración de Mapas:** Navegación en tiempo real con trazado de ruta dinámico de estación a estación para el turismo local.
+- **Validación Geo-Física para Cierre de Viaje:** Regla de negocio estricta que exige que la bicicleta esté físicamente anclada en una estación oficial para permitir la finalización del servicio y detener el cobro.
+- **Seguridad y Cuentas:** Sistema completo de registro, inicio de sesión y módulo de **recuperación de contraseña vía correo electrónico** (verificación de existencia previa en base de datos e integración de correo transaccional).
 
-## Learning Laravel
+### 🛠️ Módulo Administrador / Panel Operativo
+- **Gestión de Flota:** Alta de bicicletas, monitoreo de batería (porcentaje en tiempo real) y control de estados (*Disponible, En uso, Mantenimiento*).
+- **Control de Estaciones:** Registro y gestión de puntos estratégicos de anclaje, direcciones y capacidades de carga.
+- **Centro de Alertas e Incidencias:** Sistema de detección de anomalías (batería crítica, bicicletas fuera de puesto, fallas reportadas) con opciones directas de resolución técnica.
+- **Control de Roles:** Gestión de usuarios con permisos para promover cuentas de cliente estándar a perfil administrador.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🛠️ Tecnologías Utilizadas
 
-## Laravel Sponsors
+- **Framework Backend:** PHP / Laravel
+- **Base de Datos Relacional:** MySQL / MariaDB (alojada en Clever Cloud)
+- **Frontend & Vistas:** Blade, JavaScript (Leaflet / OpenStreetMap para mapas y trazado de rutas)
+- **Servicios Transaccionales:** API HTTP de correo (Brevo) para recuperación de contraseñas
+- **Contenedorización & Despliegue:** Docker, Render (Hosting)
+- **Control de Versiones:** Git & GitHub
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 📁 Estructura del Proyecto
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```text
+Jard-n-Bike/
+├── app/                  # Controladores, Modelos y Reglas de Negocio (Core Laravel)
+├── bootstrap/            # Configuración del entorno y proxies HTTPS
+├── config/               # Archivos de configuración de servicios y DB
+├── database/             # Migraciones, factories y seeds de estaciones/bicicletas
+├── public/               # Assets públicos, JS de mapas y QR
+├── resources/            # Vistas Blade (Interfaz cliente y Panel Operativo)
+├── routes/               # Rutas de la API y Vistas de Autenticación
+├── Dockerfile            # Configuración para contenedorización y despliegue
+└── .env.example          # Plantilla de variables de entorno
 
-## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
 
-## Code of Conduct
+👤 Autor
+Desarrollado integralmente por Richar Torres
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Desarrollador Backend & Soporte Técnico TI
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+GitHub: @richartorres
