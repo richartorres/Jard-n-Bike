@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\AlquilerController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\OperarioController;
 
 // ==========================================
 // RUTAS DE VISTAS GENERALES Y LANDING
@@ -56,6 +57,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/alertas', [AdminController::class, 'alertas'])->name('admin.alertas');
     Route::get('/reportes', [AdminController::class, 'reporteFinanciero'])->name('admin.reportes');
     Route::get('/reportes/pdf', [AdminController::class, 'exportarReportePdf'])->name('admin.reportes.pdf');
+    // Módulo de Operaciones y Novedades de Campo
+Route::get('/operaciones', [OperarioController::class, 'index'])->name('operaciones.index');
+Route::post('/operaciones/guardar', [OperarioController::class, 'store'])->name('operaciones.store');
 
     // Acciones de administración (Creación y gestión)
     Route::post('/bicicletas', [BicicletaController::class, 'store'])->name('bicicletas.store'); 
