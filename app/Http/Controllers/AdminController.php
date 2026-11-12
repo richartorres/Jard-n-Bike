@@ -7,6 +7,7 @@ use App\Models\Alquiler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -166,5 +167,26 @@ class AdminController extends Controller
         $user->delete();
 
         return redirect()->back()->with('success', 'Usuario eliminado correctamente.');
+    }
+
+    /**
+     * Vista de Reporte Financiero usando el Procedimiento Almacenado
+     */
+    public function reporteFinanciero(Request $request)
+    {
+        // 1. Verificamos que tenga permisos de admin o supervisor
+        if ($response = $this->verificarAdmin()) {
+            if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
+        }
+
+        // 2. Definimos las fechas por defecto (mes actual) o las que el usuario envíe por formulario
+        $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
+        $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
+
+        // 3. AQUÍ VA EL CÓDIGO QUE TE FALTABA (Invocando el Procedimiento Almacenado de MySQL)
+        $reporte = DB::select('CALL sp_reporte_financiero_rango(?, ?)', [$fechaInicio, $fechaFin]);
+
+        // 4. Retornamos una vista con los resultados (puedes crear la vista admin.reportes)
+        return view('admin.reportes', compact('reporte', 'fechaInicio', 'fechaFin'));
     }
 }
