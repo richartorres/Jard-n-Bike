@@ -54,7 +54,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/estaciones', [AdminController::class, 'estaciones'])->name('admin.estaciones');
     Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('admin.usuarios');
     Route::get('/alertas', [AdminController::class, 'alertas'])->name('admin.alertas');
-    Route::get('/admin/reportes', [App\Http\Controllers\AdminController::class, 'reporteFinanciero'])->name('admin.reportes');
+    Route::get('/reportes', [App\Http\Controllers\AdminController::class, 'reporteFinanciero'])->name('admin.reportes');
     Route::get('/reportes', [AdminController::class, 'reporteFinanciero'])->name('admin.reportes');
     Route::get('/reportes/pdf', [AdminController::class, 'exportarReportePdf'])->name('admin.reportes.pdf');
 
