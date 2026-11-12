@@ -1,4 +1,4 @@
-@extends('layouts.admin') {{-- O el layout principal que utilices en tu panel --}}
+@extends('layouts.app') {{-- O el layout principal que utilices en tu panel --}}
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
