@@ -50,12 +50,12 @@ Route::middleware(['auth'])->group(function () {
     
     // Panel y vistas de gestión
     Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-Route::get('/inventario', [AdminController::class, 'inventario'])->name('admin.inventario');
-Route::get('/estaciones', [AdminController::class, 'estaciones'])->name('admin.estaciones');
-Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('admin.usuarios');
-Route::get('/alertas', [AdminController::class, 'alertas'])->name('admin.alertas');
-Route::get('/reportes', [AdminController::class, 'reporteFinanciero'])->name('admin.reportes');
-Route::get('/reportes/pdf', [AdminController::class, 'exportarReportePdf'])->name('admin.reportes.pdf');
+    Route::get('/inventario', [AdminController::class, 'inventario'])->name('admin.inventario');
+    Route::get('/estaciones', [AdminController::class, 'estaciones'])->name('admin.estaciones');
+    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('admin.usuarios');
+    Route::get('/alertas', [AdminController::class, 'alertas'])->name('admin.alertas');
+    Route::get('/reportes', [AdminController::class, 'reporteFinanciero'])->name('admin.reportes');
+    Route::get('/reportes/pdf', [AdminController::class, 'exportarReportePdf'])->name('admin.reportes.pdf');
 
     // Acciones de administración (Creación y gestión)
     Route::post('/bicicletas', [BicicletaController::class, 'store'])->name('bicicletas.store'); 
