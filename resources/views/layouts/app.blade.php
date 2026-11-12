@@ -59,6 +59,7 @@
             <a href="{{ route('admin.reportes') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('reportes*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">
                 📈 Reportes
             </a>
+            <a href="{{ url('/operaciones') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('operaciones*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">🛠️ Operaciones</a>
         </nav>
     </aside>
 
