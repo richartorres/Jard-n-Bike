@@ -55,6 +55,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('admin.usuarios');
     Route::get('/alertas', [AdminController::class, 'alertas'])->name('admin.alertas');
     Route::get('/admin/reportes', [App\Http\Controllers\AdminController::class, 'reporteFinanciero'])->name('admin.reportes');
+    Route::get('/admin/reportes', [AdminController::class, 'reporteFinanciero'])->name('admin.reportes');
+    Route::get('/admin/reportes/pdf', [AdminController::class, 'exportarReportePdf'])->name('admin.reportes.pdf');
 
     // Acciones de administración (Creación y gestión)
     Route::post('/bicicletas', [BicicletaController::class, 'store'])->name('bicicletas.store'); 

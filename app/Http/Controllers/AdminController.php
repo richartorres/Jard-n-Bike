@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminController extends Controller
 {
@@ -172,21 +173,39 @@ class AdminController extends Controller
     /**
      * Vista de Reporte Financiero usando el Procedimiento Almacenado
      */
+
+
     public function reporteFinanciero(Request $request)
-    {
-        // 1. Verificamos que tenga permisos de admin o supervisor
-        if ($response = $this->verificarAdmin()) {
-            if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
-        }
+{
+    $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
+    $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
 
-        // 2. Definimos las fechas por defecto (mes actual) o las que el usuario envíe por formulario
-        $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
-        $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
+    $resumen = DB::select('CALL sp_reporte_financiero_rango(?, ?)', [$fechaInicio, $fechaFin]);
+    $historico = DB::select('CALL sp_reporte_historico_diario(?, ?)', [$fechaInicio, $fechaFin]);
 
-        // 3. AQUÍ VA EL CÓDIGO QUE TE FALTABA (Invocando el Procedimiento Almacenado de MySQL)
-        $reporte = DB::select('CALL sp_reporte_financiero_rango(?, ?)', [$fechaInicio, $fechaFin]);
+    return view('admin.reportes', [
+        'data' => $resumen[0] ?? null,
+        'historico' => $historico,
+        'fechaInicio' => $fechaInicio,
+        'fechaFin' => $fechaFin,
+    ]);
+}
 
-        // 4. Retornamos una vista con los resultados (puedes crear la vista admin.reportes)
-        return view('admin.reportes', compact('reporte', 'fechaInicio', 'fechaFin'));
-    }
+public function exportarReportePdf(Request $request)
+{
+    $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
+    $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
+
+    $resumen = DB::select('CALL sp_reporte_financiero_rango(?, ?)', [$fechaInicio, $fechaFin]);
+    $historico = DB::select('CALL sp_reporte_historico_diario(?, ?)', [$fechaInicio, $fechaFin]);
+
+    $pdf = Pdf::loadView('admin.reportes_pdf', [
+        'data' => $resumen[0] ?? null,
+        'historico' => $historico,
+        'fechaInicio' => $fechaInicio,
+        'fechaFin' => $fechaFin,
+    ]);
+
+    return $pdf->download("Reporte_JardinBike_{$fechaInicio}_a_{$fechaFin}.pdf");
+}
 }
