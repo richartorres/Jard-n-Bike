@@ -40,7 +40,10 @@
                     <select name="estacion_id" class="w-full border-gray-300 rounded-xl border p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" required>
                         <option value="">Seleccione una estación...</option>
                         @foreach($estaciones as $est)
-                            <option value="{{ $est->id_estacion }}">{{ $est->nombre_estacion }}</option>
+                            {{-- Usa $est->id o $est->id_estacion según la estructura de tu BD --}}
+                            <option value="{{ $est->id_estacion ?? $est->id }}">
+                                {{ $est->nombre_estacion ?? $est->nombre }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
