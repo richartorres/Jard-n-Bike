@@ -36,22 +36,23 @@
 
     {{-- Tarjetas KPI Estadísticas --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-            <div>
-                <p class="text-xs font-bold uppercase text-slate-400">Viajes Completados</p>
-                <p class="text-4xl font-extrabold text-slate-900 mt-2">{{ $data->total_viajes_realizados ?? 0 }}</p>
-                <p class="text-xs text-emerald-600 font-medium mt-2">✨ Periodo activo evaluado</p>
+        {{-- Tarjeta KPI de Ingresos Totales Optimizada --}}
+        <div class="bg-emerald-950 text-white p-6 rounded-2xl shadow-md flex items-center justify-between col-span-1 md:col-span-1 overflow-hidden">
+            <div class="min-w-0 flex-1 pr-3">
+                <p class="text-xs font-bold uppercase text-emerald-300 tracking-wider">Ingresos Totales</p>
+                <p class="text-2xl sm:text-3xl font-extrabold mt-2 truncate">${{ number_format($data->ingresos_generados ?? 0, 0, ',', '.') }}</p>
+                <p class="text-xs text-emerald-400 mt-2">💰 Recaudación neta verificada</p>
             </div>
-            <div class="bg-emerald-50 p-4 rounded-2xl text-emerald-700 text-2xl">🚲</div>
+            <div class="bg-emerald-900/60 p-3.5 rounded-2xl text-amber-400 text-xl shrink-0">📈</div>
         </div>
 
         <div class="bg-emerald-950 text-white p-6 rounded-2xl shadow-md flex items-center justify-between">
-            <div>
+            <div class="overflow-hidden pr-2">
                 <p class="text-xs font-bold uppercase text-emerald-300">Ingresos Totales</p>
-                <p class="text-4xl font-extrabold mt-2">${{ number_format($data->ingresos_generados ?? 0, 0, ',', '.') }}</p>
+                <p class="text-3xl font-extrabold mt-2 tracking-tight">${{ number_format($data->ingresos_generados ?? 0, 0, ',', '.') }}</p>
                 <p class="text-xs text-emerald-400 mt-2">💰 Recaudación neta verificada</p>
             </div>
-            <div class="bg-emerald-900/60 p-4 rounded-2xl text-amber-400 text-2xl">📈</div>
+            <div class="bg-emerald-900/60 p-3.5 rounded-2xl text-amber-400 text-xl shrink-0">📈</div>
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
@@ -117,30 +118,40 @@
     const labels = historicoData.map(item => item.fecha);
     const ingresos = historicoData.map(item => item.ingresos);
 
-    const ctx = document.getElementById('graficaIngresos').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Ingresos ($ COP)',
-                data: ingresos,
-                backgroundColor: '#064e3b',
-                borderRadius: 8,
-                hoverBackgroundColor: '#047857'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { 
-                y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-                x: { grid: { display: false } }
+        const ctx = document.getElementById('graficaIngresos').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ingresos ($ COP)',
+                    data: ingresos,
+                    backgroundColor: '#064e3b',
+                    borderRadius: 8,
+                    hoverBackgroundColor: '#047857'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: '#f1f5f9' } 
+                    },
+                    x: { 
+                        grid: { display: false },
+                        ticks: {
+                            maxRotation: 45, // Rota las fechas automáticamente si se acumulan
+                            minRotation: 0,
+                            autoSkip: true,  // Oculta fechas salteadas si hay demasiadas para evitar amontonamiento
+                            maxTicksLimit: 10 // Límite máximo de fechas visibles simultáneamente
+                        }
+                    }
+                }
             }
-        }
-    });
-
+        });
     // Función de Alerta Elegante con SweetAlert2
     function notificarExportacion() {
         Swal.fire({
