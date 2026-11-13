@@ -52,14 +52,18 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($historico as $fila)
+            @forelse($historico as $fila)
             <tr>
                 <td>{{ \Carbon\Carbon::parse($fila->fecha)->format('d/m/Y') }}</td>
                 <td>{{ $fila->viajes }}</td>
                 <td>${{ number_format($fila->ticket_promedio, 0, ',', '.') }}</td>
                 <td class="text-right"><strong>${{ number_format($fila->ingresos, 0, ',', '.') }}</strong></td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="4" style="text-align: center; color: #94a3b8; padding: 20px;">No hay registros en este rango de fechas.</td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 
