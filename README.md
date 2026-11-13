@@ -56,4 +56,4 @@ Desarrollado integralmente por Richar Torres
 
 Desarrollador Backend & Soporte Técnico TI
 
-GitHub: @richartorres
+GitHub: @richartorres.
