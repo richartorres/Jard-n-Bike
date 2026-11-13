@@ -47,12 +47,12 @@
         </div>
 
         <div class="bg-emerald-950 text-white p-6 rounded-2xl shadow-md flex items-center justify-between">
-            <div>
+            <div class="overflow-hidden pr-2">
                 <p class="text-xs font-bold uppercase text-emerald-300">Ingresos Totales</p>
-                <p class="text-4xl font-extrabold mt-2">${{ number_format($data->ingresos_generados ?? 0, 0, ',', '.') }}</p>
+                <p class="text-3xl font-extrabold mt-2 tracking-tight">${{ number_format($data->ingresos_generados ?? 0, 0, ',', '.') }}</p>
                 <p class="text-xs text-emerald-400 mt-2">💰 Recaudación neta verificada</p>
             </div>
-            <div class="bg-emerald-900/60 p-4 rounded-2xl text-amber-400 text-2xl">📈</div>
+            <div class="bg-emerald-900/60 p-3.5 rounded-2xl text-amber-400 text-xl shrink-0">📈</div>
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
