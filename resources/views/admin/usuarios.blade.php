@@ -20,7 +20,7 @@
                     <tr class="border-b border-gray-100 text-[11px] text-gray-400 font-semibold uppercase tracking-wider">
                         <th class="py-3 px-4">Nombre</th>
                         <th class="py-3 px-4">Correo Electrónico</th>
-                        <th class="py-3 px-4">Rol</th>
+                        <th class="py-3 px-4">Rol / Asignación</th>
                         <th class="py-3 px-4">Registro</th>
                         <th class="py-3 px-4 text-right">Acciones</th>
                     </tr>
@@ -30,41 +30,33 @@
                         <tr class="hover:bg-gray-50/50 transition user-row">
                             <td class="py-4 px-4 font-bold text-gray-900 user-name">{{ $userItem->name }}</td>
                             <td class="py-4 px-4 text-gray-500 user-email">{{ $userItem->email }}</td>
+                            
+                            <!-- Selector de Rol Directo (Sin menús flotantes que interfieran) -->
                             <td class="py-4 px-4">
-                                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold 
-                                    {{ $userItem->role === 'admin' ? 'bg-amber-50 text-amber-600' : ($userItem->role === 'operario' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600') }}">
-                                    {{ ucfirst($userItem->role) }}
-                                </span>
+                                <form action="{{ route('admin.usuarios.update-role', $userItem->id) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <select name="role" onchange="this.form.submit()" class="text-xs font-semibold py-1.5 px-3 rounded-xl border border-gray-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-700 cursor-pointer shadow-sm transition">
+                                        <option value="cliente" {{ $userItem->role === 'cliente' ? 'selected' : '' }}>Cliente</option>
+                                        <option value="operario" {{ $userItem->role === 'operario' ? 'selected' : '' }}>Operario</option>
+                                        <option value="admin" {{ $userItem->role === 'admin' ? 'selected' : '' }}>Admin</option>
+                                    </select>
+                                </form>
                             </td>
+
                             <td class="py-4 px-4 text-gray-400">{{ $userItem->created_at ? $userItem->created_at->format('d/m/Y') : 'N/A' }}</td>
+                            
                             <td class="py-4 px-4 text-right font-medium relative">
-                                <!-- Menú de Acciones desplegable -->
-                                <div class="relative inline-block text-left" x-data="{ open: false }">
-                                    <button @click="open = !open" @click.away="open = false" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition">
-                                        •••
-                                    </button>
+                                <!-- Menú de Acciones exclusivamente para Eliminar cuenta -->
+                                @if(auth()->id() !== $userItem->id)
+                                    <div class="relative inline-block text-left" x-data="{ open: false }">
+                                        <button @click="open = !open" @click.away="open = false" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition">
+                                            •••
+                                        </button>
 
-                                    <div x-show="open" style="display: none;" 
-                                         class="absolute right-0 mt-2 w-52 bg-white border border-gray-100 rounded-xl shadow-lg z-50 py-2 text-left">
-                                        
-                                        <!-- Cambiar Rol con Selector Limpio -->
-                                        <div class="px-4 py-1.5">
-                                            <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Cambiar Rol:</span>
-                                            <form action="{{ route('admin.usuarios.update-role', $userItem->id) }}" method="POST">
-                                                @csrf
-                                                @method('PATCH')
-                                                <select name="role" onchange="this.form.submit()" class="w-full text-xs border border-gray-200 rounded-lg p-1.5 focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 text-gray-700 font-medium cursor-pointer">
-                                                    <option value="cliente" {{ $userItem->role === 'cliente' ? 'selected' : '' }}>Cliente</option>
-                                                    <option value="operario" {{ $userItem->role === 'operario' ? 'selected' : '' }}>Operario</option>
-                                                    <option value="admin" {{ $userItem->role === 'admin' ? 'selected' : '' }}>Admin</option>
-                                                </select>
-                                            </form>
-                                        </div>
-
-                                        <div class="border-t border-gray-100 my-1"></div>
-
-                                        <!-- Eliminar Usuario (Evita borrar tu propio usuario admin activo) -->
-                                        @if(auth()->id() !== $userItem->id)
+                                        <div x-show="open" style="display: none;" 
+                                             class="absolute right-0 mt-2 w-44 bg-white border border-gray-100 rounded-xl shadow-lg z-50 py-1 text-left">
+                                            
                                             <form action="{{ route('admin.usuarios.destroy', $userItem->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este usuario permanentemente?');">
                                                 @csrf
                                                 @method('DELETE')
@@ -72,9 +64,9 @@
                                                     <span>🗑️</span> Eliminar cuenta
                                                 </button>
                                             </form>
-                                        @endif
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
                             </td>
                         </tr>
                     @empty
