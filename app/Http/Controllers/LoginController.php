@@ -19,12 +19,19 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // 🔍 VALIDACIÓN DE ROL: Si el usuario autenticado es admin, va al panel de control
-            if (Auth::user()->role === 'admin') {
+            $user = Auth::user();
+
+            // 🔍 VALIDACIÓN DE ROL: Si es operario, va directo a su panel operativo
+            if ($user->role === 'operario') {
+                return redirect()->intended('/operaciones');
+            }
+
+            // Si el usuario autenticado es admin, va al panel de control
+            if ($user->role === 'admin') {
                 return redirect()->intended('/admin');
             }
 
-            // Si es un usuario normal, lo mandamos al mapa
+            // Si es un cliente u otro rol normal, lo mandamos al mapa
             return redirect()->intended('/mapa');
         }
 

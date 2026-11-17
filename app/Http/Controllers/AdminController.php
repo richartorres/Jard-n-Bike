@@ -140,9 +140,9 @@ class AdminController extends Controller
 
         $user = \App\Models\User::findOrFail($id);
         
-        // Validar que el rol recibido sea válido
+        // Validar que el rol recibido incluya 'admin', 'operario' y 'cliente'
         $nuevoRol = $request->input('role');
-        if (in_array($nuevoRol, ['admin', 'cliente'])) {
+        if (in_array($nuevoRol, ['admin', 'operario', 'cliente'])) {
             $user->role = $nuevoRol;
             $user->save();
         }

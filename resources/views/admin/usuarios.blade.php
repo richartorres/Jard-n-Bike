@@ -5,7 +5,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
                 <h2 class="text-xl font-bold text-gray-900">Gestión de Usuarios</h2>
-                <p class="text-xs text-gray-500 mt-0.5">Control de cuentas de clientes y administradores.</p>
+                <p class="text-xs text-gray-500 mt-0.5">Control de cuentas de clientes, operarios y administradores.</p>
             </div>
             <!-- Buscador en tiempo real -->
             <div class="w-full sm:w-auto">
@@ -31,7 +31,8 @@
                             <td class="py-4 px-4 font-bold text-gray-900 user-name">{{ $userItem->name }}</td>
                             <td class="py-4 px-4 text-gray-500 user-email">{{ $userItem->email }}</td>
                             <td class="py-4 px-4">
-                                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold {{ $userItem->role === 'admin' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600' }}">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold 
+                                    {{ $userItem->role === 'admin' ? 'bg-amber-50 text-amber-600' : ($userItem->role === 'operario' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600') }}">
                                     {{ ucfirst($userItem->role) }}
                                 </span>
                             </td>
@@ -44,24 +45,30 @@
                                     </button>
 
                                     <div x-show="open" style="display: none;" 
-                                         class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg z-50 py-1 text-left">
+                                         class="absolute right-0 mt-2 w-52 bg-white border border-gray-100 rounded-xl shadow-lg z-50 py-2 text-left">
                                         
-                                        <!-- Cambiar Rol -->
-                                        <form action="{{ route('admin.usuarios.update-role', $userItem->id) }}" method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="role" value="{{ $userItem->role === 'admin' ? 'cliente' : 'admin' }}">
-                                            <button type="submit" class="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                                                <span>🔄</span> Cambiar a {{ $userItem->role === 'admin' ? 'Cliente' : 'Admin' }}
-                                            </button>
-                                        </form>
+                                        <!-- Cambiar Rol con Selector Limpio -->
+                                        <div class="px-4 py-1.5">
+                                            <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Cambiar Rol:</span>
+                                            <form action="{{ route('admin.usuarios.update-role', $userItem->id) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <select name="role" onchange="this.form.submit()" class="w-full text-xs border border-gray-200 rounded-lg p-1.5 focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 text-gray-700 font-medium cursor-pointer">
+                                                    <option value="cliente" {{ $userItem->role === 'cliente' ? 'selected' : '' }}>Cliente</option>
+                                                    <option value="operario" {{ $userItem->role === 'operario' ? 'selected' : '' }}>Operario</option>
+                                                    <option value="admin" {{ $userItem->role === 'admin' ? 'selected' : '' }}>Admin</option>
+                                                </select>
+                                            </form>
+                                        </div>
+
+                                        <div class="border-t border-gray-100 my-1"></div>
 
                                         <!-- Eliminar Usuario (Evita borrar tu propio usuario admin activo) -->
                                         @if(auth()->id() !== $userItem->id)
                                             <form action="{{ route('admin.usuarios.destroy', $userItem->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este usuario permanentemente?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                                <button type="submit" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium">
                                                     <span>🗑️</span> Eliminar cuenta
                                                 </button>
                                             </form>
