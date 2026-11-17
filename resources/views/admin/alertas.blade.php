@@ -80,14 +80,18 @@
                 <tbody class="text-xs text-gray-700 divide-y divide-gray-50">
                     @forelse($novedadesCampo ?? [] as $novedad)
                         <tr class="hover:bg-gray-50/50 transition">
-                            <td class="py-4 px-4 font-bold text-gray-900">#{{ $novedad->id ?? '0' }}</td>
+                            <td class="py-4 px-4 font-bold text-gray-900">#{{ $novedad->id ?? ($novedad->id_novedad ?? '0') }}</td>
                             <td class="py-4 px-4 text-gray-600">
-                                @if($novedad->bicicleta)
-                                    Bici: #{{ $novedad->bicicleta->id ?? $novedad->bicicleta->id_bicicleta ?? 'N/A' }}
-                                @elseif($novedad->estacion)
-                                    Estación: {{ $novedad->estacion->nombre ?? 'N/A' }}
+                                @if(!empty($novedad->id_bicicleta))
+                                    🚲 Bici: #{{ $novedad->id_bicicleta }}
+                                @elseif(!empty($novedad->bicicleta_id))
+                                    🚲 Bici: #{{ $novedad->bicicleta_id }}
+                                @elseif(!empty($novedad->id_estacion))
+                                    🏢 Estación ID: {{ $novedad->id_estacion }}
+                                @elseif(!empty($novedad->estacion_id))
+                                    🏢 Estación ID: {{ $novedad->estacion_id }}
                                 @else
-                                    N/A
+                                    General / N/A
                                 @endif
                             </td>
                             <td class="py-4 px-4">
@@ -96,7 +100,9 @@
                                 </span>
                             </td>
                             <td class="py-4 px-4 text-gray-600">{{ $novedad->descripcion ?? 'Sin descripción' }}</td>
-                            <td class="py-4 px-4 text-gray-500">{{ optional($novedad->usuario)->name ?? 'Operario' }}</td>
+                            <td class="py-4 px-4 text-gray-500">
+                                {{ optional($novedad->usuario)->name ?? ($novedad->user_id ? 'Usuario #' . $novedad->user_id : 'Operario') }}
+                            </td>
                             <td class="py-4 px-4 text-gray-400">
                                 {{ isset($novedad->created_at) ? $novedad->created_at->format('d/m/Y H:i') : 'N/A' }}
                             </td>
