@@ -44,39 +44,30 @@ Route::get('/mapa', function () {
 })->name('mapa');
 
 // ==========================================
-// RUTAS DEL PANEL DE ADMINISTRACIÓN (OPS)
-// (Protegidas con auth y segmentadas por rol)
+// RUTAS DEL PANEL DE ADMINISTRACIÓN Y OPERACIONES
 // ==========================================
 Route::middleware(['auth'])->group(function () {
     
-    // 🔒 RUTAS EXCLUSIVAS DE ADMINISTRADOR
-    Route::middleware(function ($request, $next) {
-        if (auth()->user()->role !== 'admin') {
-            return redirect()->route('operaciones.index')->with('error', 'Acceso no autorizado.');
-        }
-        return $next($request);
-    })->group(function () {
-        // Panel y vistas de gestión administrativa
-        Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-        Route::get('/inventario', [AdminController::class, 'inventario'])->name('admin.inventario');
-        Route::get('/estaciones', [AdminController::class, 'estaciones'])->name('admin.estaciones');
-        Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('admin.usuarios');
+    // Panel y vistas de gestión administrativa (Protegidas por AdminController)
+    Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/inventario', [AdminController::class, 'inventario'])->name('admin.inventario');
+    Route::get('/estaciones', [AdminController::class, 'estaciones'])->name('admin.estaciones');
+    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('admin.usuarios');
 
-        // Acciones de administración (Creación y gestión)
-        Route::post('/bicicletas', [BicicletaController::class, 'store'])->name('bicicletas.store'); 
-        Route::post('/estaciones', [EstacionController::class, 'store'])->name('estaciones.store'); 
-        Route::patch('/estaciones/{id_estacion}/estado', [EstacionController::class, 'updateEstado'])->name('estaciones.updateEstado');
-        Route::delete('/estaciones/{id_estacion}', [EstacionController::class, 'destroy'])->name('estaciones.destroy');
+    // Acciones de administración (Creación y gestión)
+    Route::post('/bicicletas', [BicicletaController::class, 'store'])->name('bicicletas.store'); 
+    Route::post('/estaciones', [EstacionController::class, 'store'])->name('estaciones.store'); 
+    Route::patch('/estaciones/{id_estacion}/estado', [EstacionController::class, 'updateEstado'])->name('estaciones.updateEstado');
+    Route::delete('/estaciones/{id_estacion}', [EstacionController::class, 'destroy'])->name('estaciones.destroy');
 
-        Route::patch('/bicicletas/{id}/estado', [BicicletaController::class, 'updateEstado'])->name('bicicletas.updateEstado');
-        Route::delete('/bicicletas/{id}', [BicicletaController::class, 'destroy'])->name('bicicletas.destroy');
+    Route::patch('/bicicletas/{id}/estado', [BicicletaController::class, 'updateEstado'])->name('bicicletas.updateEstado');
+    Route::delete('/bicicletas/{id}', [BicicletaController::class, 'destroy'])->name('bicicletas.destroy');
 
-        // Acciones de gestión de usuarios
-        Route::patch('/usuarios/{id}/role', [AdminController::class, 'updateRole'])->name('admin.usuarios.update-role');
-        Route::delete('/usuarios/{id}', [AdminController::class, 'destroyUser'])->name('admin.usuarios.destroy');
-    });
+    // Acciones de gestión de usuarios
+    Route::patch('/usuarios/{id}/role', [AdminController::class, 'updateRole'])->name('admin.usuarios.update-role');
+    Route::delete('/usuarios/{id}', [AdminController::class, 'destroyUser'])->name('admin.usuarios.destroy');
 
-    // 🛠️ RUTAS OPERATIVAS Y DE CONSULTA (Admin y Operario)
+    // 🛠️ RUTAS COMPARTIDAS (Admin y Operario)
     Route::get('/alertas', [AdminController::class, 'alertas'])->name('admin.alertas');
     Route::get('/reportes', [AdminController::class, 'reporteFinanciero'])->name('admin.reportes');
     Route::get('/reportes/pdf', [AdminController::class, 'exportarReportePdf'])->name('admin.reportes.pdf');
@@ -91,13 +82,8 @@ Route::middleware(['auth'])->group(function () {
 // RUTAS DE ALQUILER (Protegidas por Auth)
 // ==========================================
 Route::middleware(['auth'])->group(function () {
-    // Iniciar alquiler desde el escaneo del QR o ID de la bici
     Route::post('/iniciar-viaje', [AlquilerController::class, 'store']);
-    
-    // Pantalla de viaje activo
     Route::get('/viaje-activo', [AlquilerController::class, 'viajeActivo']);
-    
-    // Finalizar viaje pasando el ID exacto del alquiler
     Route::post('/finalizar-viaje/{id}', [AlquilerController::class, 'finalizarViaje']);
 });
 
