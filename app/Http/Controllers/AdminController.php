@@ -116,18 +116,27 @@ class AdminController extends Controller
         return view('admin.usuarios', compact('usuarios'));
     }
 
-    public function alertas()
-    {
-        if ($response = $this->verificarAdmin()) {
-            if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
-        }
-        $bicicletasAlerta = Bicicleta::where('nivel_bateria', '<', 20)
-            ->orWhere('estado', 'Mantenimiento')
-            ->get();
-        $alertasCriticasCount = $bicicletasAlerta->count();
-        
-        return view('admin.alertas', compact('bicicletasAlerta', 'alertasCriticasCount'));
+   public function alertas()
+{
+    // Permitir acceso tanto a administradores como a operarios
+    if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'operario'])) {
+        return redirect()->route('mapa')->with('error', 'Acceso no autorizado.');
     }
+
+    // Alertas de bicicletas con batería baja o en mantenimiento
+    $bicicletasAlerta = Bicicleta::where('nivel_bateria', '<', 20)
+        ->orWhere('estado', 'Mantenimiento')
+        ->get();
+    
+    $alertasCriticasCount = $bicicletasAlerta->count();
+
+    // Novedades de campo reportadas por los operarios
+    $novedadesCampo = \App\Models\NovedadCampo::with(['bicicleta', 'estacion', 'usuario'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+    
+    return view('admin.alertas', compact('bicicletasAlerta', 'alertasCriticasCount', 'novedadesCampo'));
+}
 
     /**
      * Cambiar el rol de un usuario (Cliente <-> Admin)

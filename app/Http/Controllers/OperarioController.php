@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\NovedadCampo;
 use App\Models\Bicicleta;
 use App\Models\Estacion;
-use App\Models\User;
+use App\Models\User; // <-- Asegúrate de tener esta línea importada
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +17,7 @@ class OperarioController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Obtenemos los registros asegurando compatibilidad con los nombres reales de tus tablas
         $bicicletas = Bicicleta::all();
         $estaciones = Estacion::all();
 
@@ -43,11 +44,6 @@ class OperarioController extends Controller
             'descripcion'  => $request->descripcion,
         ]);
 
-        return back()->with('success', '¡Incidencia registrada y enviada al centro de alertas exitosamente!');
-    }
-
-    public function guardar(Request $request)
-    {
-        return $this->store($request);
+        return back()->with('success', '¡Incidencia registrada correctamente!');
     }
 }
