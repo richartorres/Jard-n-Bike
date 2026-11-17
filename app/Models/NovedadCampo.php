@@ -10,25 +10,27 @@ class NovedadCampo extends Model
     use HasFactory;
 
     protected $table = 'novedad_campos';
-    protected $primaryKey = 'id_novedad';
-    public $timestamps = false;
+    protected $primaryKey = 'id'; // O 'id_novedad' si ese es el nombre exacto de tu llave primaria en la BD
+    
+    // Si tu tabla tiene columnas created_at y updated_at, déjalo en true (o borra la línea de timestamps = false)
+    public $timestamps = true; 
 
     protected $fillable = [
-        'bicicleta_id',
-        'estacion_id',
+        'id_bicicleta',
+        'id_estacion',
         'user_id',
-        'descripcion',
-        'tipo_novedad'
+        'tipo_novedad',
+        'descripcion'
     ];
 
     public function bicicleta()
     {
-        return $this->belongsTo(Bicicleta::class, 'bicicleta_id', 'id_bicicleta');
+        return $this->belongsTo(Bicicleta::class, 'id_bicicleta', 'id');
     }
 
     public function estacion()
     {
-        return $this->belongsTo(Estacion::class, 'estacion_id', 'id_estacion');
+        return $this->belongsTo(Estacion::class, 'id_estacion', 'id_estacion');
     }
 
     public function usuario()
