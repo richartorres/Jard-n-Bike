@@ -75,6 +75,7 @@
                         <th class="py-3 px-4">Descripción</th>
                         <th class="py-3 px-4">Reportado por</th>
                         <th class="py-3 px-4">Fecha</th>
+                        <th class="py-3 px-4 text-right">Acción</th>
                     </tr>
                 </thead>
                 <tbody class="text-xs text-gray-700 divide-y divide-gray-50">
@@ -106,10 +107,31 @@
                             <td class="py-4 px-4 text-gray-400">
                                 {{ isset($novedad->created_at) ? $novedad->created_at->format('d/m/Y H:i') : 'N/A' }}
                             </td>
+                            
+                            <!-- Columna de Acción Mecánica -->
+                            <td class="py-4 px-4 text-right">
+                                @php
+                                    $biciIdAccion = $novedad->id_bicicleta ?? $novedad->bicicleta_id ?? null;
+                                @endphp
+
+                                @if($biciIdAccion)
+                                    <form action="{{ route('bicicletas.updateEstado', $biciIdAccion) }}" method="POST" class="inline-block">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="estado" value="Disponible">
+                                        <input type="hidden" name="nivel_bateria" value="100">
+                                        <button type="submit" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-semibold transition shadow-sm" title="Marcar bicicleta como reparada y batería al 100%">
+                                            ⚡ Resolver
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="text-[11px] text-gray-400 italic">N/A</span>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-8 text-center text-gray-400 text-xs">
+                            <td colspan="7" class="py-8 text-center text-gray-400 text-xs">
                                 No hay novedades de campo registradas recientemente.
                             </td>
                         </tr>

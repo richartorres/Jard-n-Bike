@@ -27,18 +27,17 @@ class OperarioController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_bicicleta' => 'nullable|exists:bicicletas,id',
-            'id_estacion'  => 'nullable|exists:estaciones,id_estacion',
             'tipo_novedad' => 'required|in:Mantenimiento Bici,Falla Estación,Batería Baja',
             'descripcion'  => 'required|string|max:500',
         ]);
 
-        // Asegura un user_id válido que exista en la tabla users
-        $userId = Auth::id() ?? User::value('id');
+        // Asegura un user_id válido
+        $userId = Auth::id() ?? \App\Models\User::value('id');
 
+        // Captura los IDs sin importar si el formulario los manda como id_ o con _id
         NovedadCampo::create([
-            'id_bicicleta' => $request->id_bicicleta,
-            'id_estacion'  => $request->id_estacion,
+            'id_bicicleta' => $request->id_bicicleta ?? $request->bicicleta_id ?? null,
+            'id_estacion'  => $request->id_estacion ?? $request->estacion_id ?? null,
             'user_id'      => $userId,
             'tipo_novedad' => $request->tipo_novedad,
             'descripcion'  => $request->descripcion,
