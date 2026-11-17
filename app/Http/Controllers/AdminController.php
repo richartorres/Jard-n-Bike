@@ -123,14 +123,14 @@ class AdminController extends Controller
         return redirect()->route('mapa')->with('error', 'Acceso no autorizado.');
     }
 
-    // Alertas de bicicletas con batería baja o en mantenimiento
+    // Alertas automáticas de bicicletas (batería baja o mantenimiento)
     $bicicletasAlerta = Bicicleta::where('nivel_bateria', '<', 20)
         ->orWhere('estado', 'Mantenimiento')
         ->get();
     
     $alertasCriticasCount = $bicicletasAlerta->count();
 
-    // Novedades de campo reportadas por los operarios
+    // 📌 Novedades de campo reportadas por los operarios (¡Esta era la que faltaba mostrar en la vista!)
     $novedadesCampo = \App\Models\NovedadCampo::with(['bicicleta', 'estacion', 'usuario'])
         ->orderBy('created_at', 'desc')
         ->get();

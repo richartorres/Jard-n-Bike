@@ -57,4 +57,53 @@
             @endforelse
         </div>
     </div>
+
+    <!-- 📋 SECCIÓN NUEVA: Historial de Novedades de Campo Reportadas por Operarios -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="text-base font-bold text-gray-900">Historial de Novedades de Campo</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Incidencias reportadas en ruta por el personal operativo.</p>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-gray-100 text-[11px] text-gray-400 font-semibold uppercase tracking-wider">
+                        <th class="py-3 px-4">ID</th>
+                        <th class="py-3 px-4">Bici / Estación</th>
+                        <th class="py-3 px-4">Tipo</th>
+                        <th class="py-3 px-4">Descripción</th>
+                        <th class="py-3 px-4">Reportado por</th>
+                        <th class="py-3 px-4">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody class="text-xs text-gray-700 divide-y divide-gray-50">
+                    @forelse($novedadesCampo ?? [] as $novedad)
+                        <tr class="hover:bg-gray-50/50 transition">
+                            <td class="py-4 px-4 font-bold text-gray-900">#{{ $novedad->id }}</td>
+                            <td class="py-4 px-4 text-gray-600">
+                                {{ $novedad->bicicleta ? 'Bici: #' . $novedad->bicicleta->id : ($novedad->estacion ? 'Estación: ' . $novedad->estacion->nombre : 'N/A') }}
+                            </td>
+                            <td class="py-4 px-4">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-600">
+                                    {{ $novedad->tipo_novedad }}
+                                </span>
+                            </td>
+                            <td class="py-4 px-4 text-gray-600">{{ $novedad->descripcion }}</td>
+                            <td class="py-4 px-4 text-gray-500">{{ $novedad->usuario->name ?? 'Sistema' }}</td>
+                            <td class="py-4 px-4 text-gray-400">{{ $novedad->created_at ? $novedad->created_at->format('d/m/Y H:i') : 'N/A' }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="py-8 text-center text-gray-400 text-xs">
+                                No hay novedades de campo registradas recientemente.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 @endsection
