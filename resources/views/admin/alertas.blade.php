@@ -20,17 +20,16 @@
                             ⚠️
                         </div>
                         <div>
-                            <h4 class="text-xs font-bold text-gray-900">{{ $bici->id_bicicleta }} - {{ $bici->modelo }}</h4>
+                            <h4 class="text-xs font-bold text-gray-900">{{ $bici->id_bicicleta ?? ($bici->id ?? 'N/A') }} - {{ $bici->modelo ?? 'Bicicleta' }}</h4>
                             <p class="text-[11px] text-gray-500 mt-0.5">
-                                Nivel de batería crítico: <span class="text-red-600 font-semibold">{{ $bici->nivel_bateria }}%</span> | Estado: <span class="font-semibold text-amber-600">{{ $bici->estado }}</span>
+                                Nivel de batería crítico: <span class="text-red-600 font-semibold">{{ $bici->nivel_bateria ?? 0 }}%</span> | Estado: <span class="font-semibold text-amber-600">{{ $bici->estado ?? 'N/A' }}</span>
                             </p>
                         </div>
                     </div>
                     
                     <!-- Botones de Acción Rápida -->
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                        <!-- Botón para resolver rápido (Cambia estado a Disponible y recarga batería al 100%) -->
-                        <form action="{{ route('bicicletas.updateEstado', $bici->id_bicicleta) }}" method="POST">
+                        <form action="{{ route('bicicletas.updateEstado', $bici->id ?? ($bici->id_bicicleta ?? 1)) }}" method="POST">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="estado" value="Disponible">
@@ -40,7 +39,6 @@
                             </button>
                         </form>
 
-                        <!-- Enlace opcional para revisar en inventario -->
                         <a href="{{ route('admin.inventario') }}" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition shadow-sm">
                             Ver Inventario
                         </a>
@@ -58,7 +56,7 @@
         </div>
     </div>
 
-    <!-- 📋 SECCIÓN NUEVA: Historial de Novedades de Campo Reportadas por Operarios -->
+    <!-- 📋 Historial de Novedades de Campo Reportadas por Operarios -->
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <div class="flex justify-between items-center mb-6">
             <div>
@@ -82,18 +80,26 @@
                 <tbody class="text-xs text-gray-700 divide-y divide-gray-50">
                     @forelse($novedadesCampo ?? [] as $novedad)
                         <tr class="hover:bg-gray-50/50 transition">
-                            <td class="py-4 px-4 font-bold text-gray-900">#{{ $novedad->id }}</td>
+                            <td class="py-4 px-4 font-bold text-gray-900">#{{ $novedad->id ?? '0' }}</td>
                             <td class="py-4 px-4 text-gray-600">
-                                {{ $novedad->bicicleta ? 'Bici: #' . $novedad->bicicleta->id : ($novedad->estacion ? 'Estación: ' . $novedad->estacion->nombre : 'N/A') }}
+                                @if($novedad->bicicleta)
+                                    Bici: #{{ $novedad->bicicleta->id ?? $novedad->bicicleta->id_bicicleta ?? 'N/A' }}
+                                @elseif($novedad->estacion)
+                                    Estación: {{ $novedad->estacion->nombre ?? 'N/A' }}
+                                @else
+                                    N/A
+                                @endif
                             </td>
                             <td class="py-4 px-4">
                                 <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-600">
-                                    {{ $novedad->tipo_novedad }}
+                                    {{ $novedad->tipo_novedad ?? 'Incidencia' }}
                                 </span>
                             </td>
-                            <td class="py-4 px-4 text-gray-600">{{ $novedad->descripcion }}</td>
-                            <td class="py-4 px-4 text-gray-500">{{ $novedad->usuario->name ?? 'Sistema' }}</td>
-                            <td class="py-4 px-4 text-gray-400">{{ $novedad->created_at ? $novedad->created_at->format('d/m/Y H:i') : 'N/A' }}</td>
+                            <td class="py-4 px-4 text-gray-600">{{ $novedad->descripcion ?? 'Sin descripción' }}</td>
+                            <td class="py-4 px-4 text-gray-500">{{ optional($novedad->usuario)->name ?? 'Operario' }}</td>
+                            <td class="py-4 px-4 text-gray-400">
+                                {{ isset($novedad->created_at) ? $novedad->created_at->format('d/m/Y H:i') : 'N/A' }}
+                            </td>
                         </tr>
                     @empty
                         <tr>
