@@ -45,34 +45,45 @@ Route::get('/mapa', function () {
 
 // ==========================================
 // RUTAS DEL PANEL DE ADMINISTRACIÓN (OPS)
-// (Protegidas con auth para mayor seguridad en producción)
+// (Protegidas con auth y segmentadas por rol)
 // ==========================================
 Route::middleware(['auth'])->group(function () {
     
-    // Panel y vistas de gestión
-    Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/inventario', [AdminController::class, 'inventario'])->name('admin.inventario');
-    Route::get('/estaciones', [AdminController::class, 'estaciones'])->name('admin.estaciones');
-    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('admin.usuarios');
+    // 🔒 RUTAS EXCLUSIVAS DE ADMINISTRADOR
+    Route::middleware(function ($request, $next) {
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('operaciones.index')->with('error', 'Acceso no autorizado.');
+        }
+        return $next($request);
+    })->group(function () {
+        // Panel y vistas de gestión administrativa
+        Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/inventario', [AdminController::class, 'inventario'])->name('admin.inventario');
+        Route::get('/estaciones', [AdminController::class, 'estaciones'])->name('admin.estaciones');
+        Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('admin.usuarios');
+
+        // Acciones de administración (Creación y gestión)
+        Route::post('/bicicletas', [BicicletaController::class, 'store'])->name('bicicletas.store'); 
+        Route::post('/estaciones', [EstacionController::class, 'store'])->name('estaciones.store'); 
+        Route::patch('/estaciones/{id_estacion}/estado', [EstacionController::class, 'updateEstado'])->name('estaciones.updateEstado');
+        Route::delete('/estaciones/{id_estacion}', [EstacionController::class, 'destroy'])->name('estaciones.destroy');
+
+        Route::patch('/bicicletas/{id}/estado', [BicicletaController::class, 'updateEstado'])->name('bicicletas.updateEstado');
+        Route::delete('/bicicletas/{id}', [BicicletaController::class, 'destroy'])->name('bicicletas.destroy');
+
+        // Acciones de gestión de usuarios
+        Route::patch('/usuarios/{id}/role', [AdminController::class, 'updateRole'])->name('admin.usuarios.update-role');
+        Route::delete('/usuarios/{id}', [AdminController::class, 'destroyUser'])->name('admin.usuarios.destroy');
+    });
+
+    // 🛠️ RUTAS OPERATIVAS Y DE CONSULTA (Admin y Operario)
     Route::get('/alertas', [AdminController::class, 'alertas'])->name('admin.alertas');
     Route::get('/reportes', [AdminController::class, 'reporteFinanciero'])->name('admin.reportes');
     Route::get('/reportes/pdf', [AdminController::class, 'exportarReportePdf'])->name('admin.reportes.pdf');
+
     // Módulo de Operaciones y Novedades de Campo
-Route::get('/operaciones', [OperarioController::class, 'index'])->name('operaciones.index');
-Route::post('/operaciones/guardar', [OperarioController::class, 'store'])->name('operaciones.store');
-
-    // Acciones de administración (Creación y gestión)
-    Route::post('/bicicletas', [BicicletaController::class, 'store'])->name('bicicletas.store'); 
-    Route::post('/estaciones', [EstacionController::class, 'store'])->name('estaciones.store'); 
-    Route::patch('/estaciones/{id_estacion}/estado', [EstacionController::class, 'updateEstado'])->name('estaciones.updateEstado');
-    Route::delete('/estaciones/{id_estacion}', [EstacionController::class, 'destroy'])->name('estaciones.destroy');
-
-    Route::patch('/bicicletas/{id}/estado', [BicicletaController::class, 'updateEstado'])->name('bicicletas.updateEstado');
-    Route::delete('/bicicletas/{id}', [BicicletaController::class, 'destroy'])->name('bicicletas.destroy');
-
-    // Acciones de gestión de usuarios
-    Route::patch('/usuarios/{id}/role', [AdminController::class, 'updateRole'])->name('admin.usuarios.update-role');
-    Route::delete('/usuarios/{id}', [AdminController::class, 'destroyUser'])->name('admin.usuarios.destroy');
+    Route::get('/operaciones', [OperarioController::class, 'index'])->name('operaciones.index');
+    Route::post('/operaciones/guardar', [OperarioController::class, 'store'])->name('operaciones.store');
 
 });
 

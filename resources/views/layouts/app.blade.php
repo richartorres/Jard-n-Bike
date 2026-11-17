@@ -47,19 +47,55 @@
         </div>
 
         <nav class="space-y-2 flex-1 overflow-y-auto no-scrollbar">
-            <!-- Dashboard (Solo se activa si la URL es exacta /admin) -->
-            <a href="{{ url('/admin') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('admin') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">📊 Dashboard</a>
+            @php
+                $isOperario = auth()->check() && auth()->user()->role === 'operario';
+            @endphp
 
-            <a href="{{ url('/inventario') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('inventario*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">🚲 Bicicletas</a>
-            <a href="{{ url('/estaciones') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('estaciones*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">📍 Estaciones</a>
-            <a href="{{ url('/usuarios') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('usuarios*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">👥 Usuarios</a>
-            <a href="{{ url('/alertas') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('alertas*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">⚠️ Alertas</a>
+            <!-- Dashboard (Bloqueado para operario) -->
+            <a href="{{ $isOperario ? '#' : url('/admin') }}" 
+               class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ $isOperario ? 'opacity-40 cursor-not-allowed text-emerald-300/50' : (Request::is('admin') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30') }}"
+               @if($isOperario) onclick="event.preventDefault();" title="Acceso exclusivo para administradores" @endif>
+               📊 Dashboard
+            </a>
 
-            <!-- Reportes (Se activa cuando la ruta es reportes) -->
-            <a href="{{ route('admin.reportes') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('reportes*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">
+            <!-- Bicicletas (Bloqueado para operario) -->
+            <a href="{{ $isOperario ? '#' : url('/inventario') }}" 
+               class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ $isOperario ? 'opacity-40 cursor-not-allowed text-emerald-300/50' : (Request::is('inventario*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30') }}"
+               @if($isOperario) onclick="event.preventDefault();" title="Acceso exclusivo para administradores" @endif>
+               🚲 Bicicletas
+            </a>
+
+            <!-- Estaciones (Bloqueado para operario) -->
+            <a href="{{ $isOperario ? '#' : url('/estaciones') }}" 
+               class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ $isOperario ? 'opacity-40 cursor-not-allowed text-emerald-300/50' : (Request::is('estaciones*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30') }}"
+               @if($isOperario) onclick="event.preventDefault();" title="Acceso exclusivo para administradores" @endif>
+               📍 Estaciones
+            </a>
+
+            <!-- Usuarios (Bloqueado para operario) -->
+            <a href="{{ $isOperario ? '#' : url('/usuarios') }}" 
+               class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ $isOperario ? 'opacity-40 cursor-not-allowed text-emerald-300/50' : (Request::is('usuarios*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30') }}"
+               @if($isOperario) onclick="event.preventDefault();" title="Acceso exclusivo para administradores" @endif>
+               👥 Usuarios
+            </a>
+
+            <!-- Alertas (Permitido para el operario para supervisar incidencias) -->
+            <a href="{{ url('/alertas') }}" 
+               class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('alertas*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">
+               ⚠️ Alertas
+            </a>
+
+            <!-- Reportes (Permitido) -->
+            <a href="{{ route('admin.reportes') }}" 
+               class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('reportes*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">
                 📈 Reportes
             </a>
-            <a href="{{ url('/operaciones') }}" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('operaciones*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">🛠️ Operaciones</a>
+
+            <!-- Operaciones (Panel Principal del Operario) -->
+            <a href="{{ url('/operaciones') }}" 
+               class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition {{ Request::is('operaciones*') ? 'bg-emerald-900/50 text-white' : 'text-emerald-200 hover:text-white hover:bg-emerald-900/30' }}">
+               🛠️ Operaciones
+            </a>
         </nav>
     </aside>
 
