@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class NovedadCampo extends Model
 {
+    use HasFactory;
+
     protected $table = 'novedad_campos';
     protected $primaryKey = 'id_novedad';
     public $timestamps = false;

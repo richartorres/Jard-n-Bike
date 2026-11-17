@@ -51,10 +51,10 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Novedad:</label>
                     <select name="tipo_novedad" class="w-full border-gray-300 rounded-xl border p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" required>
+                        <option value="">Seleccione un tipo...</option>
                         <option value="Batería Baja">Batería Baja / Descargada</option>
-                        <option value="Daño Físico">Daño Físico (Frenos, Llantas)</option>
-                        <option value="Falla Anclaje">Falla en Anclaje de Estación</option>
-                        <option value="Mantenimiento Preventivo">Mantenimiento Preventivo</option>
+                        <option value="Falla Estación">Falla en Anclaje de Estación</option>
+                        <option value="Mantenimiento Bici">Mantenimiento Bici (Preventivo/Correctivo)</option>
                     </select>
                 </div>
 
