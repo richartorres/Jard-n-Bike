@@ -31,18 +31,21 @@
                             <td class="py-4 px-4 font-bold text-gray-900 user-name">{{ $userItem->name }}</td>
                             <td class="py-4 px-4 text-gray-500 user-email">{{ $userItem->email }}</td>
                             
-                            <!-- Selector de Rol Directo (Sin menús flotantes que interfieran) -->
-                            <td class="py-4 px-4">
-                                <form action="{{ route('admin.usuarios.update-role', $userItem->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <select name="role" onchange="this.form.submit()" class="text-xs font-semibold py-1.5 px-3 rounded-xl border border-gray-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-700 cursor-pointer shadow-sm transition">
-                                        <option value="cliente" {{ $userItem->role === 'cliente' ? 'selected' : '' }}>Cliente</option>
-                                        <option value="operario" {{ $userItem->role === 'operario' ? 'selected' : '' }}>Operario</option>
-                                        <option value="admin" {{ $userItem->role === 'admin' ? 'selected' : '' }}>Admin</option>
-                                    </select>
-                                </form>
-                            </td>
+                           
+                            <!-- Selector de Rol con Diseño Corporativo y Colores Dinámicos -->
+                                <td class="py-4 px-4">
+                                    <form action="{{ route('admin.usuarios.update-role', $userItem->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <select name="role" onchange="this.form.submit()" 
+                                            class="text-xs font-semibold py-1.5 px-3 rounded-xl border transition cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 
+                                            {{ $userItem->role === 'admin' ? 'bg-amber-50 border-amber-200 text-amber-700 focus:ring-amber-500' : ($userItem->role === 'operario' ? 'bg-emerald-50 border-emerald-200 text-emerald-700 focus:ring-emerald-500' : 'bg-blue-50 border-blue-200 text-blue-700 focus:ring-blue-500') }}">
+                                            <option value="cliente" class="bg-white text-gray-700" {{ $userItem->role === 'cliente' ? 'selected' : '' }}>Cliente</option>
+                                            <option value="operario" class="bg-white text-gray-700" {{ $userItem->role === 'operario' ? 'selected' : '' }}>Operario</option>
+                                            <option value="admin" class="bg-white text-gray-700" {{ $userItem->role === 'admin' ? 'selected' : '' }}>Admin</option>
+                                        </select>
+                                    </form>
+                                </td>
 
                             <td class="py-4 px-4 text-gray-400">{{ $userItem->created_at ? $userItem->created_at->format('d/m/Y') : 'N/A' }}</td>
                             
