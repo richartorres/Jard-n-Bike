@@ -118,7 +118,7 @@ class AdminController extends Controller
         return view('admin.usuarios', compact('usuarios'));
     }
 
-   public function alertas()public function alertas()
+public function alertas()
 {
     try {
         // Permitir acceso tanto a administradores como a operarios
