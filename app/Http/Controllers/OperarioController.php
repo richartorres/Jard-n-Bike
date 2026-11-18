@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\NovedadCampo;
 use App\Models\Bicicleta;
 use App\Models\Estacion;
-use App\Models\User; // <-- Asegúrate de tener esta línea importada
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,7 +17,6 @@ class OperarioController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Obtenemos los registros asegurando compatibilidad con los nombres reales de tus tablas
         $bicicletas = Bicicleta::all();
         $estaciones = Estacion::all();
 
@@ -26,26 +25,23 @@ class OperarioController extends Controller
 
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'tipo_novedad' => 'required|string',
-                'descripcion'  => 'required|string|max:500',
-            ]);
+        $request->validate([
+            'tipo_novedad' => 'required|string',
+            'descripcion'  => 'required|string|max:500',
+        ]);
 
-            $userId = Auth::id() ?? \App\Models\User::value('id');
+        // Asegura un user_id válido
+        $userId = Auth::id() ?? User::value('id');
 
-            NovedadCampo::create([
-                'id_bicicleta' => $request->id_bicicleta ?? $request->bicicleta_id ?? null,
-                'id_estacion'  => $request->id_estacion ?? $request->estacion_id ?? null,
-                'user_id'      => $userId,
-                'tipo_novedad' => $request->tipo_novedad,
-                'descripcion'  => $request->descripcion,
-            ]);
+        // Usamos una instancia y save() para evitar cualquier bloqueo de Mass Assignment o nombres de columnas
+        $novedad = new NovedadCampo();
+        $novedad->id_bicicleta = $request->bicicleta_id ?? $request->id_bicicleta ?? null;
+        $novedad->id_estacion  = $request->estacion_id ?? $request->id_estacion ?? null;
+        $novedad->user_id      = $userId;
+        $novedad->tipo_novedad = $request->tipo_novedad;
+        $novedad->descripcion  = $request->descripcion;
+        $novedad->save();
 
-            return back()->with('success', '¡Incidencia registrada correctamente!');
-            
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Error al guardar: ' . $e->getMessage()]);
-        }
+        return back()->with('success', '¡Incidencia registrada correctamente!');
     }
 }
