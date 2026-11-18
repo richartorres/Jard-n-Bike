@@ -87,10 +87,12 @@
                     <tbody class="divide-y divide-gray-50 text-sm text-gray-600">
                         @forelse($novedades as $nov)
                             <tr>
-                                <td class="py-3 px-4 font-semibold text-gray-800">#{{ $nov->id_novedad }}</td>
+                                <!-- ID seguro por si la columna es 'id' o 'id_novedad' -->
+                                <td class="py-3 px-4 font-semibold text-gray-800">#{{ $nov->id ?? $nov->id_novedad ?? '0' }}</td>
                                 <td class="py-3 px-4">
-                                    <span class="block font-medium text-gray-800">Bici: #{{ $nov->bicicleta_id }}</span>
-                                    <span class="text-xs text-gray-400">{{ $nov->estacion->nombre_estacion ?? 'N/A' }}</span>
+                                    <!-- ID de bici seguro -->
+                                    <span class="block font-medium text-gray-800">Bici: #{{ $nov->bicicleta_id ?? $nov->id_bicicleta ?? 'N/A' }}</span>
+                                    <span class="text-xs text-gray-400">{{ optional($nov->estacion)->nombre_estacion ?? optional($nov->estacion)->nombre ?? 'N/A' }}</span>
                                 </td>
                                 <td class="py-3 px-4">
                                     <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
@@ -98,7 +100,7 @@
                                     </span>
                                 </td>
                                 <td class="py-3 px-4 max-w-xs truncate">{{ $nov->descripcion }}</td>
-                                <td class="py-3 px-4 text-xs text-gray-400">{{ $nov->created_at }}</td>
+                                <td class="py-3 px-4 text-xs text-gray-400">{{ $nov->created_at ? $nov->created_at->format('d/m/Y H:i') : 'N/A' }}</td>
                             </tr>
                         @empty
                             <tr>
