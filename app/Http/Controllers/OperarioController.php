@@ -28,6 +28,8 @@ class OperarioController extends Controller
     {
         $request->validate([
             'tipo_novedad' => 'required|in:Mantenimiento Bici,Falla Estación,Batería Baja',
+            'id_bicicleta' => 'nullable|required_if:tipo_novedad,Mantenimiento Bici,Batería Baja|exists:bicicletas,id_bicicleta',
+            'id_estacion'  => 'nullable|required_if:tipo_novedad,Falla Estación|exists:estaciones,id_estacion',
             'descripcion'  => 'required|string|max:500',
         ]);
 
