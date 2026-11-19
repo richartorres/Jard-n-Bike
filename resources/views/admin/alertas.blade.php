@@ -1,6 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
+    @if(session('success'))
+        <div class="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
+            ✓ {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
         <div class="flex justify-between items-center mb-6">
             <div>
@@ -86,20 +98,28 @@
                 <tbody class="text-xs text-gray-700 divide-y divide-gray-50">
                     @forelse($novedadesCampo ?? [] as $novedad)
                         @php
-                            $biciIdAccion = $novedad->bicicleta_id ?? $novedad->id_bicicleta ?? null;
-                            $estacionIdAccion = $novedad->estacion_id ?? $novedad->id_estacion ?? null;
+                            $biciPk = $novedad->bicicleta_id ?? $novedad->id_bicicleta ?? optional($novedad->bicicleta)->id_bicicleta ?? null;
+                            $estacionPk = $novedad->estacion_id ?? $novedad->id_estacion ?? optional($novedad->estacion)->id_estacion ?? null;
+                            $estadoBiciActual = optional($novedad->bicicleta)->estado;
                         @endphp
                         <tr class="hover:bg-gray-50/50 transition">
                             <td class="py-4 px-4 font-bold text-gray-900">#{{ $novedad->id_novedad ?? ($novedad->id ?? '0') }}</td>
                             <td class="py-4 px-4 text-gray-600">
-                                @if($biciIdAccion)
-                                    <span class="block font-medium text-gray-800">🚲 Bici #{{ $biciIdAccion }}</span>
-                                @endif
-                                @if($estacionIdAccion)
-                                    <span class="block text-[11px] text-gray-400">
-                                        🏢 {{ optional($novedad->estacion)->nombre ?? ('Estación #' . $estacionIdAccion) }}
+                                @if($biciPk)
+                                    <span class="block font-medium text-gray-800">
+                                        🚲 Bici #{{ $biciPk }}
+                                        @if($estadoBiciActual)
+                                            <span class="text-[10px] font-semibold {{ $estadoBiciActual === 'Disponible' ? 'text-emerald-600' : 'text-amber-600' }}">
+                                                ({{ $estadoBiciActual }})
+                                            </span>
+                                        @endif
                                     </span>
-                                @elseif(!$biciIdAccion)
+                                @endif
+                                @if($estacionPk)
+                                    <span class="block text-[11px] text-gray-400">
+                                        🏢 {{ optional($novedad->estacion)->nombre ?? ('Estación #' . $estacionPk) }}
+                                    </span>
+                                @elseif(!$biciPk)
                                     General / N/A
                                 @endif
                             </td>
@@ -116,10 +136,10 @@
                                 {{ !empty($novedad->created_at) ? \Illuminate\Support\Carbon::parse($novedad->created_at)->format('d/m/Y H:i') : 'N/A' }}
                             </td>
                             
-                            <!-- Columna de Acción Mecánica -->
+                            <!-- Columna de Acción Mecánica (misma lógica que Resolver / Recargar) -->
                             <td class="py-4 px-4 text-right">
-                                @if($biciIdAccion)
-                                    <form action="{{ route('bicicletas.updateEstado', $biciIdAccion) }}" method="POST" class="inline-block">
+                                @if($biciPk)
+                                    <form action="{{ route('bicicletas.updateEstado', $biciPk) }}" method="POST" class="inline-block">
                                         @csrf
                                         @method('PATCH')
                                         <input type="hidden" name="estado" value="Disponible">
