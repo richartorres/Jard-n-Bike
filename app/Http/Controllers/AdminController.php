@@ -120,34 +120,25 @@ class AdminController extends Controller
 
 public function alertas()
 {
-    try {
-        // Permitir acceso tanto a administradores como a operarios
-        if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'operario'])) {
-            return redirect()->route('mapa')->with('error', 'Acceso no autorizado.');
-        }
-
-        // Alertas automáticas de bicicletas
-        $bicicletasAlerta = Bicicleta::where('nivel_bateria', '<', 20)
-            ->orWhere('estado', 'Mantenimiento')
-            ->get();
-        
-        $alertasCriticasCount = $bicicletasAlerta->count();
-
-        // Novedades de campo reportadas por los operarios
-        $novedadesCampo = NovedadCampo::with(['bicicleta', 'estacion', 'usuario'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-        
-        return view('admin.alertas', compact('bicicletasAlerta', 'alertasCriticasCount', 'novedadesCampo'));
-
-    } catch (\Exception $e) {
-        // Esto mostrará el error exacto en la pantalla cuando entres a alertas
-        return response()->json([
-            'error' => $e->getMessage(),
-            'archivo' => $e->getFile(),
-            'linea' => $e->getLine()
-        ], 500);
+    if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'operario'])) {
+        return redirect()->route('mapa')->with('error', 'Acceso no autorizado.');
     }
+
+    $bicicletasAlerta = Bicicleta::where('nivel_bateria', '<', 20)
+        ->orWhere('estado', 'Mantenimiento')
+        ->get();
+
+    $alertasCriticasCount = $bicicletasAlerta->count();
+
+    try {
+        $novedadesCampo = NovedadCampo::with(['bicicleta', 'estacion', 'usuario'])
+            ->orderByDesc('id_novedad')
+            ->get();
+    } catch (\Throwable $e) {
+        $novedadesCampo = NovedadCampo::orderByDesc('id_novedad')->get();
+    }
+
+    return view('admin.alertas', compact('bicicletasAlerta', 'alertasCriticasCount', 'novedadesCampo'));
 }
 
     /**

@@ -8,7 +8,7 @@ class NovedadCampo extends Model
 {
     protected $table = 'novedad_campos';
     protected $primaryKey = 'id_novedad';
-    public $timestamps = false; // La tabla solo tiene created_at en BD, no updated_at
+    public $timestamps = false;
 
     protected $fillable = [
         'bicicleta_id',
