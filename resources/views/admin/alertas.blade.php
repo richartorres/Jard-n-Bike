@@ -14,13 +14,18 @@
 
         <div class="space-y-3">
             @forelse($bicicletasAlerta ?? [] as $bici)
+                @php
+                    $biciPk = $bici->id_bicicleta ?? $bici->id ?? 1;
+                @endphp
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-gray-50 transition">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center font-bold text-xs shrink-0">
                             ⚠️
                         </div>
                         <div>
-                            <h4 class="text-xs font-bold text-gray-900">{{ $bici->id_bicicleta ?? ($bici->id ?? 'N/A') }} - {{ $bici->modelo ?? 'Bicicleta' }}</h4>
+                            <h4 class="text-xs font-bold text-gray-900">
+                                Bici #{{ $biciPk }} - {{ $bici->modelo ?? 'Bicicleta' }} ({{ $bici->codigo_qr ?? 'N/A' }})
+                            </h4>
                             <p class="text-[11px] text-gray-500 mt-0.5">
                                 Nivel de batería crítico: <span class="text-red-600 font-semibold">{{ $bici->nivel_bateria ?? 0 }}%</span> | Estado: <span class="font-semibold text-amber-600">{{ $bici->estado ?? 'N/A' }}</span>
                             </p>
@@ -29,7 +34,7 @@
                     
                     <!-- Botones de Acción Rápida -->
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                        <form action="{{ route('bicicletas.updateEstado', $bici->id ?? ($bici->id_bicicleta ?? 1)) }}" method="POST">
+                        <form action="{{ route('bicicletas.updateEstado', $biciPk) }}" method="POST">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="estado" value="Disponible">
@@ -80,18 +85,21 @@
                 </thead>
                 <tbody class="text-xs text-gray-700 divide-y divide-gray-50">
                     @forelse($novedadesCampo ?? [] as $novedad)
+                        @php
+                            $biciIdAccion = $novedad->bicicleta_id ?? $novedad->id_bicicleta ?? null;
+                            $estacionIdAccion = $novedad->estacion_id ?? $novedad->id_estacion ?? null;
+                        @endphp
                         <tr class="hover:bg-gray-50/50 transition">
-                            <td class="py-4 px-4 font-bold text-gray-900">#{{ $novedad->id ?? ($novedad->id_novedad ?? '0') }}</td>
+                            <td class="py-4 px-4 font-bold text-gray-900">#{{ $novedad->id_novedad ?? ($novedad->id ?? '0') }}</td>
                             <td class="py-4 px-4 text-gray-600">
-                                @if(!empty($novedad->id_bicicleta))
-                                    🚲 Bici: #{{ $novedad->id_bicicleta }}
-                                @elseif(!empty($novedad->bicicleta_id))
-                                    🚲 Bici: #{{ $novedad->bicicleta_id }}
-                                @elseif(!empty($novedad->id_estacion))
-                                    🏢 Estación ID: {{ $novedad->id_estacion }}
-                                @elseif(!empty($novedad->estacion_id))
-                                    🏢 Estación ID: {{ $novedad->estacion_id }}
-                                @else
+                                @if($biciIdAccion)
+                                    <span class="block font-medium text-gray-800">🚲 Bici #{{ $biciIdAccion }}</span>
+                                @endif
+                                @if($estacionIdAccion)
+                                    <span class="block text-[11px] text-gray-400">
+                                        🏢 {{ optional($novedad->estacion)->nombre ?? ('Estación #' . $estacionIdAccion) }}
+                                    </span>
+                                @elseif(!$biciIdAccion)
                                     General / N/A
                                 @endif
                             </td>
@@ -105,15 +113,11 @@
                                 {{ optional($novedad->usuario)->name ?? ($novedad->user_id ? 'Usuario #' . $novedad->user_id : 'Operario') }}
                             </td>
                             <td class="py-4 px-4 text-gray-400">
-                                {{ isset($novedad->created_at) ? $novedad->created_at->format('d/m/Y H:i') : 'N/A' }}
+                                {{ !empty($novedad->created_at) ? \Illuminate\Support\Carbon::parse($novedad->created_at)->format('d/m/Y H:i') : 'N/A' }}
                             </td>
                             
                             <!-- Columna de Acción Mecánica -->
                             <td class="py-4 px-4 text-right">
-                                @php
-                                    $biciIdAccion = $novedad->id_bicicleta ?? $novedad->bicicleta_id ?? null;
-                                @endphp
-
                                 @if($biciIdAccion)
                                     <form action="{{ route('bicicletas.updateEstado', $biciIdAccion) }}" method="POST" class="inline-block">
                                         @csrf
