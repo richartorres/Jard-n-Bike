@@ -1,4 +1,4 @@
-@extends('layouts.app') <!-- O la ruta exacta de tu layout maestro si cambia el nombre -->
+@extends('layouts.app')
 
 @section('content')
 <div class="max-w-7xl mx-auto">
@@ -12,8 +12,19 @@
     </header>
 
     @if(session('success'))
-        <div class="mb-6 p-4 bg-emerald-100 border border-emerald-400 text-emerald-700 rounded-xl shadow-sm">
+        <div class="mb-6 p-4 bg-emerald-100 border border-emerald-400 text-emerald-700 rounded-xl shadow-sm text-sm font-medium">
             {{ session('success') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-red-50 border border-red-300 text-red-700 rounded-xl shadow-sm text-sm">
+            <p class="font-semibold mb-1">Revisa los siguientes campos:</p>
+            <ul class="list-disc pl-5 space-y-0.5">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -25,42 +36,44 @@
             
             <form action="{{ route('operaciones.store') }}" method="POST" class="space-y-4">
                 @csrf
+
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Bicicleta afectada:</label>
-                    <select name="bicicleta_id" class="w-full border-gray-300 rounded-xl border p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" required>
-                        <option value="">Seleccione una bicicleta...</option>
-                        @foreach($bicicletas as $bici)
-                            <option value="{{ $bici->id_bicicleta }}">Bici #{{ $bici->id_bicicleta }} ({{ $bici->codigo_qr }})</option>
-                        @endforeach
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Novedad:</label>
+                    <select name="tipo_novedad" class="w-full border-gray-300 rounded-xl border p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" required>
+                        <option value="">Seleccione un tipo...</option>
+                        <option value="Batería Baja" {{ old('tipo_novedad') == 'Batería Baja' ? 'selected' : '' }}>Batería Baja / Descargada</option>
+                        <option value="Falla Estación" {{ old('tipo_novedad') == 'Falla Estación' ? 'selected' : '' }}>Falla en Anclaje de Estación</option>
+                        <option value="Mantenimiento Bici" {{ old('tipo_novedad') == 'Mantenimiento Bici' ? 'selected' : '' }}>Mantenimiento Bici (Preventivo/Correctivo)</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Estación de referencia:</label>
-                    <select name="estacion_id" class="w-full border-gray-300 rounded-xl border p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" required>
-                        <option value="">Seleccione una estación...</option>
-                        @foreach($estaciones as $est)
-                            {{-- Usa $est->id o $est->id_estacion según la estructura de tu BD --}}
-                            <option value="{{ $est->id_estacion ?? $est->id }}">
-                                {{ $est->nombre_estacion ?? $est->nombre }}
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Bicicleta afectada:</label>
+                    <select name="bicicleta_id" class="w-full border-gray-300 rounded-xl border p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <option value="">Seleccione una bicicleta...</option>
+                        @foreach($bicicletas as $bici)
+                            <option value="{{ $bici->id_bicicleta }}" {{ old('bicicleta_id') == $bici->id_bicicleta ? 'selected' : '' }}>
+                                Bici #{{ $bici->id_bicicleta }} ({{ $bici->codigo_qr }})
                             </option>
                         @endforeach
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Novedad:</label>
-                    <select name="tipo_novedad" class="w-full border-gray-300 rounded-xl border p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" required>
-                        <option value="">Seleccione un tipo...</option>
-                        <option value="Batería Baja">Batería Baja / Descargada</option>
-                        <option value="Falla Estación">Falla en Anclaje de Estación</option>
-                        <option value="Mantenimiento Bici">Mantenimiento Bici (Preventivo/Correctivo)</option>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Estación de referencia:</label>
+                    <select name="estacion_id" class="w-full border-gray-300 rounded-xl border p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <option value="">Seleccione una estación...</option>
+                        @foreach($estaciones as $est)
+                            <option value="{{ $est->id_estacion }}" {{ old('estacion_id') == $est->id_estacion ? 'selected' : '' }}>
+                                {{ $est->nombre }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Descripción del problema:</label>
-                    <textarea name="descripcion" rows="3" class="w-full border-gray-300 rounded-xl border p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Detalles de la incidencia..." required></textarea>
+                    <textarea name="descripcion" rows="3" class="w-full border-gray-300 rounded-xl border p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Detalles de la incidencia..." required>{{ old('descripcion') }}</textarea>
                 </div>
 
                 <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-medium py-2.5 rounded-xl transition shadow-md">
@@ -87,12 +100,14 @@
                     <tbody class="divide-y divide-gray-50 text-sm text-gray-600">
                         @forelse($novedades as $nov)
                             <tr>
-                                <!-- ID seguro por si la columna es 'id' o 'id_novedad' -->
-                                <td class="py-3 px-4 font-semibold text-gray-800">#{{ $nov->id ?? $nov->id_novedad ?? '0' }}</td>
+                                <td class="py-3 px-4 font-semibold text-gray-800">#{{ $nov->id_novedad }}</td>
                                 <td class="py-3 px-4">
-                                    <!-- ID de bici seguro -->
-                                    <span class="block font-medium text-gray-800">Bici: #{{ $nov->bicicleta_id ?? $nov->id_bicicleta ?? 'N/A' }}</span>
-                                    <span class="text-xs text-gray-400">{{ optional($nov->estacion)->nombre_estacion ?? optional($nov->estacion)->nombre ?? 'N/A' }}</span>
+                                    <span class="block font-medium text-gray-800">
+                                        {{ $nov->bicicleta_id ? 'Bici #' . $nov->bicicleta_id : 'Sin bici' }}
+                                    </span>
+                                    <span class="text-xs text-gray-400">
+                                        {{ optional($nov->estacion)->nombre ?? 'Sin estación' }}
+                                    </span>
                                 </td>
                                 <td class="py-3 px-4">
                                     <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
@@ -100,7 +115,9 @@
                                     </span>
                                 </td>
                                 <td class="py-3 px-4 max-w-xs truncate">{{ $nov->descripcion }}</td>
-                                <td class="py-3 px-4 text-xs text-gray-400">{{ $nov->created_at ? $nov->created_at->format('d/m/Y H:i') : 'N/A' }}</td>
+                                <td class="py-3 px-4 text-xs text-gray-400">
+                                    {{ $nov->created_at ? \Illuminate\Support\Carbon::parse($nov->created_at)->format('d/m/Y H:i') : 'N/A' }}
+                                </td>
                             </tr>
                         @empty
                             <tr>

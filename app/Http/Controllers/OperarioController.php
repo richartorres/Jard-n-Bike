@@ -26,20 +26,21 @@ class OperarioController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'tipo_novedad' => 'required|string',
+            'tipo_novedad' => 'required|in:Mantenimiento Bici,Falla Estación,Batería Baja',
+            'bicicleta_id' => 'nullable|required_if:tipo_novedad,Mantenimiento Bici,Batería Baja|exists:bicicletas,id_bicicleta',
+            'estacion_id'  => 'nullable|required_if:tipo_novedad,Falla Estación|exists:estaciones,id_estacion',
             'descripcion'  => 'required|string|max:500',
         ]);
 
-        // Asegura un user_id válido
         $userId = Auth::id() ?? User::value('id');
 
-        // Captura los IDs sin importar cómo los envíe el formulario
         NovedadCampo::create([
-            'id_bicicleta' => $request->bicicleta_id ?? $request->id_bicicleta ?? null,
-            'id_estacion'  => $request->estacion_id ?? $request->id_estacion ?? null,
+            'bicicleta_id' => $request->filled('bicicleta_id') ? $request->bicicleta_id : null,
+            'estacion_id'  => $request->filled('estacion_id') ? $request->estacion_id : null,
             'user_id'      => $userId,
             'tipo_novedad' => $request->tipo_novedad,
             'descripcion'  => $request->descripcion,
+            'created_at'   => now(),
         ]);
 
         return back()->with('success', '¡Incidencia registrada correctamente!');
