@@ -33,14 +33,14 @@ class OperarioController extends Controller
         // Asegura un user_id válido
         $userId = Auth::id() ?? User::value('id');
 
-        // Usamos una instancia y save() para evitar cualquier bloqueo de Mass Assignment o nombres de columnas
-        $novedad = new NovedadCampo();
-        $novedad->id_bicicleta = $request->bicicleta_id ?? $request->id_bicicleta ?? null;
-        $novedad->id_estacion  = $request->estacion_id ?? $request->id_estacion ?? null;
-        $novedad->user_id      = $userId;
-        $novedad->tipo_novedad = $request->tipo_novedad;
-        $novedad->descripcion  = $request->descripcion;
-        $novedad->save();
+        // Captura los IDs sin importar cómo los envíe el formulario
+        NovedadCampo::create([
+            'id_bicicleta' => $request->bicicleta_id ?? $request->id_bicicleta ?? null,
+            'id_estacion'  => $request->estacion_id ?? $request->id_estacion ?? null,
+            'user_id'      => $userId,
+            'tipo_novedad' => $request->tipo_novedad,
+            'descripcion'  => $request->descripcion,
+        ]);
 
         return back()->with('success', '¡Incidencia registrada correctamente!');
     }
