@@ -82,10 +82,61 @@
             </form>
         </div>
 
-        <!-- Tabla de Historial de Novedades -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">📋 Historial de Incidencias en Ruta</h3>
-            
+        <!-- Panel Derecho Limpio + Botón para Ver Historial Completo -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 flex flex-col justify-between">
+            <div>
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">📋 Historial de Incidencias en Ruta</h3>
+
+                    <button
+                        type="button"
+                        onclick="abrirHistorialModal()"
+                        class="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition shadow-sm cursor-pointer"
+                    >
+                        <span>📜</span>
+                        <span>Ver historial ({{ isset($novedades) ? $novedades->count() : 0 }})</span>
+                    </button>
+                </div>
+
+                <div class="py-12 px-4 text-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50">
+                    <div class="w-11 h-11 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto mb-3 text-base font-bold">
+                        ✓
+                    </div>
+                    <p class="text-sm font-semibold text-gray-800">No hay reportes por ahora</p>
+                    <p class="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+                        El panel está listo para nuevos registros. Cuando quieras revisar incidencias anteriores, pulsa <span class="font-semibold text-gray-600">Ver historial</span>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Modal de Historial Completo -->
+<div
+    id="modalHistorialIncidencias"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-[1px] p-4"
+    onclick="cerrarHistorialAlFondo(event)"
+>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div>
+                <h4 class="text-base font-bold text-gray-900">Historial de Incidencias en Ruta</h4>
+                <p class="text-xs text-gray-500 mt-0.5">Registro completo de novedades reportadas en campo.</p>
+            </div>
+            <button
+                type="button"
+                onclick="cerrarHistorialModal()"
+                class="w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center text-sm font-bold transition cursor-pointer"
+                aria-label="Cerrar historial"
+            >
+                ✕
+            </button>
+        </div>
+
+        <div class="p-6 overflow-y-auto">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -115,7 +166,7 @@
                                     </span>
                                 </td>
                                 <td class="py-3 px-4 max-w-xs truncate">{{ $nov->descripcion }}</td>
-                                <td class="py-3 px-4 text-xs text-gray-400">
+                                <td class="py-3 px-4 text-xs text-gray-400 whitespace-nowrap">
                                     {{ $nov->created_at ? \Illuminate\Support\Carbon::parse($nov->created_at)->format('d/m/Y H:i') : 'N/A' }}
                                 </td>
                             </tr>
@@ -129,7 +180,45 @@
             </div>
         </div>
 
+        <div class="px-6 py-3.5 border-t border-gray-100 bg-gray-50/60 flex justify-end">
+            <button
+                type="button"
+                onclick="cerrarHistorialModal()"
+                class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer"
+            >
+                Cerrar
+            </button>
+        </div>
     </div>
-
 </div>
+
+<script>
+    function abrirHistorialModal() {
+        const modal = document.getElementById('modalHistorialIncidencias');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.classList.add('overflow-hidden');
+    }
+
+    function cerrarHistorialModal() {
+        const modal = document.getElementById('modalHistorialIncidencias');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.classList.remove('overflow-hidden');
+    }
+
+    function cerrarHistorialAlFondo(event) {
+        if (event.target && event.target.id === 'modalHistorialIncidencias') {
+            cerrarHistorialModal();
+        }
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            cerrarHistorialModal();
+        }
+    });
+</script>
 @endsection
