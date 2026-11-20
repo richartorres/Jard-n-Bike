@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Bicicleta;
 use App\Models\Alquiler;
+use App\Models\Estacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\NovedadCampo;
-
 
 class AdminController extends Controller
 {
@@ -40,12 +41,12 @@ class AdminController extends Controller
             ->orWhere('estado', 'En uso')
             ->orWhere('estado', 'Activo')
             ->count();
-        
+
         $viajesHoy = Alquiler::whereDate('created_at', Carbon::today())->count();
         if ($viajesHoy === 0) {
             $viajesHoy = Alquiler::count();
         }
-        
+
         $alertasCriticas = Bicicleta::where('nivel_bateria', '<', 20)
             ->orWhere('estado', 'Mantenimiento')
             ->count();
@@ -53,16 +54,15 @@ class AdminController extends Controller
         $ingresosHoy = Alquiler::whereDate('created_at', Carbon::today())
             ->where('estado_alquiler', 'Completado')
             ->sum('valor_total');
-            
+
         if ($ingresosHoy == 0) {
             $ingresosHoy = Alquiler::where('estado_alquiler', 'Completado')->sum('valor_total');
         }
 
-        // Retorna específicamente la vista del dashboard que creaste
         return view('admin.dashboard', compact(
-            'bicicletasActivas', 
-            'viajesHoy', 
-            'alertasCriticas', 
+            'bicicletasActivas',
+            'viajesHoy',
+            'alertasCriticas',
             'ingresosHoy'
         ));
     }
@@ -76,18 +76,14 @@ class AdminController extends Controller
             if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
         }
 
-        // Control de inventario cargando la relación 'estacion' de forma segura
         try {
             $bicicletas = Bicicleta::with('estacion')->get();
         } catch (\Exception $e) {
             $bicicletas = Bicicleta::all();
         }
 
-        // Retorna específicamente la vista del inventario que creaste
         return view('admin.inventario', compact('bicicletas'));
     }
-
-
 
     /**
      * Método index por compatibilidad con la ruta principal /admin
@@ -102,10 +98,9 @@ class AdminController extends Controller
         if ($response = $this->verificarAdmin()) {
             if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
         }
-        
-        // Consultamos todas las estaciones de la base de datos
-        $estaciones = \App\Models\Estacion::all(); 
-        
+
+        $estaciones = Estacion::all();
+
         return view('admin.estaciones', compact('estaciones'));
     }
 
@@ -117,8 +112,6 @@ class AdminController extends Controller
         $usuarios = \App\Models\User::all();
         return view('admin.usuarios', compact('usuarios'));
     }
-
-
 
     public function alertas()
     {
@@ -152,9 +145,17 @@ class AdminController extends Controller
                 ->groupBy('bicicleta_id')
                 ->map(fn ($grupo) => $grupo->first());
 
-            $novedadesEstacionCount = $novedadesCampo->filter(function ($item) {
-                return empty($item->bicicleta_id) && !empty($item->estacion_id);
-            })->count();
+            $novedadesEstacionCount = $novedadesCampo
+                ->filter(function ($item) {
+                    if (!empty($item->bicicleta_id) || empty($item->estacion_id)) {
+                        return false;
+                    }
+                    $estadoEst = strtolower(trim((string) (optional($item->estacion)->estado ?? '')));
+                    return $estadoEst !== 'activa';
+                })
+                ->sortByDesc(fn ($item) => (int) ($item->id_novedad ?? $item->id ?? 0))
+                ->unique(fn ($item) => (string) $item->estacion_id)
+                ->count();
         } catch (\Throwable $e) {
             $novedadesCampo = NovedadCampo::orderByDesc('id_novedad')->get();
         }
@@ -169,8 +170,6 @@ class AdminController extends Controller
         ));
     }
 
-
-
     /**
      * Cambiar el rol de un usuario (Cliente <-> Admin)
      */
@@ -181,8 +180,7 @@ class AdminController extends Controller
         }
 
         $user = \App\Models\User::findOrFail($id);
-        
-        // Validar que el rol recibido incluya 'admin', 'operario' y 'cliente'
+
         $nuevoRol = $request->input('role');
         if (in_array($nuevoRol, ['admin', 'operario', 'cliente'])) {
             $user->role = $nuevoRol;
@@ -201,7 +199,6 @@ class AdminController extends Controller
             if ($response instanceof \Illuminate\Http\RedirectResponse) return $response;
         }
 
-        // Evitar que el administrador borre su propia cuenta activa por error
         if (Auth::id() == $id) {
             return redirect()->back()->with('error', 'No puedes eliminar tu propia cuenta de administrador.');
         }
@@ -215,43 +212,39 @@ class AdminController extends Controller
     /**
      * Vista de Reporte Financiero usando el Procedimiento Almacenado
      */
-
-
     public function reporteFinanciero(Request $request)
-{
-    $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
-    $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
+    {
+        $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
+        $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
 
-    $resumen = DB::select('CALL sp_reporte_financiero_rango(?, ?)', [$fechaInicio, $fechaFin]);
-    $historico = DB::select('CALL sp_reporte_historico_diario(?, ?)', [$fechaInicio, $fechaFin]);
+        $resumen = DB::select('CALL sp_reporte_financiero_rango(?, ?)', [$fechaInicio, $fechaFin]);
+        $historico = DB::select('CALL sp_reporte_historico_diario(?, ?)', [$fechaInicio, $fechaFin]);
 
-    return view('admin.reportes', [
-        'data' => $resumen[0] ?? null,
-        'historico' => $historico,
-        'fechaInicio' => $fechaInicio,
-        'fechaFin' => $fechaFin,
-    ]);
-}
+        return view('admin.reportes', [
+            'data' => $resumen[0] ?? null,
+            'historico' => $historico,
+            'fechaInicio' => $fechaInicio,
+            'fechaFin' => $fechaFin,
+        ]);
+    }
 
-public function exportarReportePdf(Request $request)
-{
-    $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
-    $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
+    public function exportarReportePdf(Request $request)
+    {
+        $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
+        $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
 
-    $resumen = DB::select('CALL sp_reporte_financiero_rango(?, ?)', [$fechaInicio, $fechaFin]);
-    $historico = DB::select('CALL sp_reporte_historico_diario(?, ?)', [$fechaInicio, $fechaFin]);
+        $resumen = DB::select('CALL sp_reporte_financiero_rango(?, ?)', [$fechaInicio, $fechaFin]);
+        $historico = DB::select('CALL sp_reporte_historico_diario(?, ?)', [$fechaInicio, $fechaFin]);
 
-    $pdf = Pdf::loadView('admin.reportes_pdf', [
-        'data' => $resumen[0] ?? null,
-        'historico' => $historico,
-        'fechaInicio' => $fechaInicio,
-        'fechaFin' => $fechaFin,
-    ]);
+        $pdf = Pdf::loadView('admin.reportes_pdf', [
+            'data' => $resumen[0] ?? null,
+            'historico' => $historico,
+            'fechaInicio' => $fechaInicio,
+            'fechaFin' => $fechaFin,
+        ]);
 
-    return $pdf->download("Reporte_JardinBike_{$fechaInicio}_a_{$fechaFin}.pdf");
-}
-
-
+        return $pdf->download("Reporte_JardinBike_{$fechaInicio}_a_{$fechaFin}.pdf");
+    }
 
     public function resolverEstacion($id)
 {
@@ -259,26 +252,25 @@ public function exportarReportePdf(Request $request)
         return redirect()->route('mapa')->with('error', 'Acceso no autorizado.');
     }
 
-    $novedad = NovedadCampo::where('id_novedad', $id)->orWhere('id', $id)->first();
+    $novedad = NovedadCampo::where('id_novedad', $id)->first();
     $estacionId = $novedad->estacion_id ?? $novedad->id_estacion ?? null;
 
     if ($estacionId) {
-        try {
-            $estacion = Estacion::where('id_estacion', $estacionId)->orWhere('id', $estacionId)->first();
-            if ($estacion && \Illuminate\Support\Facades\Schema::hasColumn($estacion->getTable(), 'estado')) {
-                $estacion->update(['estado' => 'Activa']);
-            }
-        } catch (\Throwable $e) {
-            // Si el modelo o columna varía, no bloquea la resolución
+        $estacion = Estacion::where('id_estacion', $estacionId)->first();
+        if ($estacion) {
+            $estacion->estado = 'Activa';
+            $estacion->save();
         }
     }
 
     if (request()->expectsJson()) {
-        return response()->json(['ok' => true, 'id' => (string) $id]);
+        return response()->json([
+            'ok' => true,
+            'id' => (string) $id,
+            'estado' => 'Activa',
+        ]);
     }
 
     return back()->with('success', 'Incidencia de estación resuelta: la estación ahora está Activa.');
 }
-
-
 }
