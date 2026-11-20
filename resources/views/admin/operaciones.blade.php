@@ -99,7 +99,11 @@
                 </div>
 
                 @php
-                    $estacionesResueltasIds = collect(session('estaciones_resueltas', []))->map(fn ($v) => (string) $v);
+                    $estacionesViejasResueltas = collect(['11', '13', '15']);
+                    $estacionesResueltasIds = collect(session('estaciones_resueltas', []))
+                        ->map(fn ($v) => (string) $v)
+                        ->merge($estacionesViejasResueltas)
+                        ->unique();
 
                     $novedadesPendientes = collect($novedades ?? [])->filter(function ($item) use ($estacionesResueltasIds) {
                         $tieneBici = !empty($item->bicicleta_id);
@@ -122,7 +126,7 @@
                             return $estado !== 'Disponible' || $bateria < 20;
                         }
 
-                        // Caso 2: Solo estación (sin bici) -> oculta si ya fue marcada resuelta en sesión
+                        // Caso 2: Solo estación (sin bici) -> oculta si ya fue marcada resuelta en sesión o en lista vieja
                         $novId = (string) ($item->id_novedad ?? $item->id ?? '');
                         return !$estacionesResueltasIds->contains($novId);
                     });
