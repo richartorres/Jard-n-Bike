@@ -119,7 +119,7 @@ class AdminController extends Controller
     }
 
 
-    
+
     public function alertas()
     {
         if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'operario'])) {
@@ -147,6 +147,8 @@ class AdminController extends Controller
         return view('admin.alertas', compact('bicicletasAlerta', 'alertasCriticasCount', 'novedadesCampo'));
     }
 
+
+    
     /**
      * Cambiar el rol de un usuario (Cliente <-> Admin)
      */
