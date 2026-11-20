@@ -13,6 +13,12 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+            {{ implode(' | ', $errors->all()) }}
+        </div>
+    @endif
+
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
         <div class="flex justify-between items-center mb-6">
             <div>
@@ -100,7 +106,9 @@
                         @php
                             $biciPk = $novedad->bicicleta_id ?? $novedad->id_bicicleta ?? optional($novedad->bicicleta)->id_bicicleta ?? null;
                             $estacionPk = $novedad->estacion_id ?? $novedad->id_estacion ?? optional($novedad->estacion)->id_estacion ?? null;
-                            $estadoBiciActual = optional($novedad->bicicleta)->estado;
+                            $biciRel = $novedad->bicicleta;
+                            $estadoBiciActual = optional($biciRel)->estado;
+                            $bateriaBiciActual = optional($biciRel)->nivel_bateria;
                         @endphp
                         <tr class="hover:bg-gray-50/50 transition">
                             <td class="py-4 px-4 font-bold text-gray-900">#{{ $novedad->id_novedad ?? ($novedad->id ?? '0') }}</td>
@@ -110,7 +118,7 @@
                                         🚲 Bici #{{ $biciPk }}
                                         @if($estadoBiciActual)
                                             <span class="text-[10px] font-semibold {{ $estadoBiciActual === 'Disponible' ? 'text-emerald-600' : 'text-amber-600' }}">
-                                                ({{ $estadoBiciActual }})
+                                                ({{ $estadoBiciActual }}{{ $bateriaBiciActual !== null ? ' · ' . $bateriaBiciActual . '%' : '' }})
                                             </span>
                                         @endif
                                     </span>

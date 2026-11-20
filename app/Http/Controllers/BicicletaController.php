@@ -41,20 +41,19 @@ class BicicletaController extends Controller
     /**
      * Vista principal del inventario para el panel operativo (Web).
      */
-    public function index() 
+    public function index()
     {
         $bicicletas = Bicicleta::with('estacionOrigen')->get();
         $estaciones = Estacion::all();
         $user = Auth::user();
 
-        // Si prefieres usar la ruta directa a 'admin.inventario'
         return view('admin.inventario', compact('bicicletas', 'estaciones', 'user'));
     }
 
     /**
      * Almacena una nueva bicicleta desde el panel operativo (Web).
      */
-    public function store(Request $request) 
+    public function store(Request $request)
     {
         $request->validate([
             'codigo_qr' => 'required|unique:bicicletas,codigo_qr',
@@ -80,9 +79,9 @@ class BicicletaController extends Controller
     public function update(Request $request, string $id) {}
 
     /**
-     * Cambia el estado operativo de la bicicleta (Disponible / Mantenimiento).
+     * Cambia el estado operativo de la bicicleta (Disponible / Mantenimiento) y su batería.
      */
-   public function updateEstado(Request $request, $id)
+    public function updateEstado(Request $request, $id)
     {
         $bicicleta = Bicicleta::where('id_bicicleta', $id)->firstOrFail();
 
@@ -90,13 +89,16 @@ class BicicletaController extends Controller
             $bicicleta->estado = $request->input('estado');
         }
 
-        if ($request->filled('nivel_bateria')) {
-            $bicicleta->nivel_bateria = (int) $request->input('nivel_bateria');
+        if ($request->has('nivel_bateria') && $request->input('nivel_bateria') !== null && $request->input('nivel_bateria') !== '' && is_numeric($request->input('nivel_bateria'))) {
+            $bicicleta->nivel_bateria = max(0, min(100, (int) $request->input('nivel_bateria')));
         }
 
         $bicicleta->save();
 
-        return redirect()->back()->with('success', 'Unidad actualizada y recargada exitosamente.');
+        return redirect()->back()->with(
+            'success',
+            "Bicicleta #{$bicicleta->id_bicicleta} actualizada a {$bicicleta->estado} ({$bicicleta->nivel_bateria}%)."
+        );
     }
 
     /**
@@ -104,7 +106,7 @@ class BicicletaController extends Controller
      */
     public function destroy($id)
     {
-        $bici = Bicicleta::findOrFail($id);
+        $bici = Bicicleta::where('id_bicicleta', $id)->firstOrFail();
         $bici->delete();
 
         return back()->with('success', 'Bicicleta eliminada del sistema.');

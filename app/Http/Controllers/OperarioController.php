@@ -34,14 +34,30 @@ class OperarioController extends Controller
 
         $userId = Auth::id() ?? User::value('id');
 
-        NovedadCampo::create([
-            'bicicleta_id' => $request->filled('bicicleta_id') ? $request->bicicleta_id : null,
-            'estacion_id'  => $request->filled('estacion_id') ? $request->estacion_id : null,
+        $bicicletaId = $request->filled('bicicleta_id') ? (int) $request->bicicleta_id : null;
+
+        $novedad = NovedadCampo::create([
+            'bicicleta_id' => $bicicletaId,
+            'estacion_id'  => $request->filled('estacion_id') ? (int) $request->estacion_id : null,
             'user_id'      => $userId,
             'tipo_novedad' => $request->tipo_novedad,
             'descripcion'  => $request->descripcion,
             'created_at'   => now(),
         ]);
+
+        if ($bicicletaId) {
+            $bicicleta = Bicicleta::where('id_bicicleta', $bicicletaId)->first();
+
+            if ($bicicleta) {
+                $bicicleta->estado = 'Mantenimiento';
+
+                if ($request->tipo_novedad === 'Batería Baja' && (int) $bicicleta->nivel_bateria >= 20) {
+                    $bicicleta->nivel_bateria = 15;
+                }
+
+                $bicicleta->save();
+            }
+        }
 
         return back()->with('success', '¡Incidencia registrada correctamente!');
     }
