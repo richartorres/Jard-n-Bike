@@ -250,4 +250,30 @@ public function exportarReportePdf(Request $request)
 
     return $pdf->download("Reporte_JardinBike_{$fechaInicio}_a_{$fechaFin}.pdf");
 }
+
+
+
+    public function resolverEstacion($id)
+    {
+        if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'operario'])) {
+            return redirect()->route('mapa')->with('error', 'Acceso no autorizado.');
+        }
+
+        $resueltas = collect(session('estaciones_resueltas', []))
+            ->map(fn ($v) => (string) $v)
+            ->push((string) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        session(['estaciones_resueltas' => $resueltas]);
+
+        if (request()->expectsJson()) {
+            return response()->json(['ok' => true, 'id' => (string) $id]);
+        }
+
+        return back()->with('success', 'Incidencia de estación marcada como resuelta.');
+    }
+
+
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\AlquilerController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\OperarioController;
 
+
 // ==========================================
 // RUTAS DE VISTAS GENERALES Y LANDING
 // ==========================================
@@ -75,6 +76,9 @@ Route::middleware(['auth'])->group(function () {
     // Módulo de Operaciones y Novedades de Campo
     Route::get('/operaciones', [OperarioController::class, 'index'])->name('operaciones.index');
     Route::post('/operaciones/guardar', [OperarioController::class, 'store'])->name('operaciones.store');
+
+    Route::post('/alertas/estaciones/{id}/resolver', [\App\Http\Controllers\AdminController::class, 'resolverEstacion'])
+    ->name('alertas.resolverEstacion');
 
 });
 

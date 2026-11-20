@@ -99,7 +99,9 @@
                 </div>
 
                 @php
-                    $novedadesPendientes = collect($novedades ?? [])->filter(function ($item) {
+                    $estacionesResueltasIds = collect(session('estaciones_resueltas', []))->map(fn ($v) => (string) $v);
+
+                    $novedadesPendientes = collect($novedades ?? [])->filter(function ($item) use ($estacionesResueltasIds) {
                         $tieneBici = !empty($item->bicicleta_id);
                         $tieneEstacion = !empty($item->estacion_id);
 
@@ -120,8 +122,9 @@
                             return $estado !== 'Disponible' || $bateria < 20;
                         }
 
-                        // Caso 2: Solo estación (sin bici)
-                        return true;
+                        // Caso 2: Solo estación (sin bici) -> oculta si ya fue marcada resuelta en sesión
+                        $novId = (string) ($item->id_novedad ?? $item->id ?? '');
+                        return !$estacionesResueltasIds->contains($novId);
                     });
                 @endphp
 
