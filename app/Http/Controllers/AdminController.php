@@ -130,25 +130,36 @@ class AdminController extends Controller
             ->orWhere('estado', 'Mantenimiento')
             ->get();
 
-        $alertasCriticasCount = $bicicletasAlerta->count();
+        $novedadesEstacionCount = 0;
 
         try {
             $novedadesCampo = NovedadCampo::with(['bicicleta', 'estacion', 'usuario'])
-                ->whereHas('bicicleta', function ($q) {
-                    $q->where('nivel_bateria', '<', 20)
-                        ->orWhere('estado', 'Mantenimiento');
+                ->where(function ($query) {
+                    $query->whereHas('bicicleta', function ($q) {
+                        $q->where('nivel_bateria', '<', 20)
+                            ->orWhere('estado', 'Mantenimiento');
+                    })->orWhere(function ($q) {
+                        $q->whereNull('bicicleta_id')
+                            ->whereNotNull('estacion_id');
+                    });
                 })
                 ->orderByDesc('id_novedad')
                 ->get();
+
+            $novedadesEstacionCount = $novedadesCampo->filter(function ($item) {
+                return empty($item->bicicleta_id) && !empty($item->estacion_id);
+            })->count();
         } catch (\Throwable $e) {
             $novedadesCampo = NovedadCampo::orderByDesc('id_novedad')->get();
         }
+
+        $alertasCriticasCount = $bicicletasAlerta->count() + $novedadesEstacionCount;
 
         return view('admin.alertas', compact('bicicletasAlerta', 'alertasCriticasCount', 'novedadesCampo'));
     }
 
 
-    
+
     /**
      * Cambiar el rol de un usuario (Cliente <-> Admin)
      */

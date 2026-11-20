@@ -19,19 +19,28 @@
         </div>
     @endif
 
+    @php
+        $novedadesSoloEstacion = collect($novedadesCampo ?? [])->filter(function ($nov) {
+            $bId = $nov->bicicleta_id ?? $nov->id_bicicleta ?? optional($nov->bicicleta)->id_bicicleta ?? null;
+            $eId = $nov->estacion_id ?? $nov->id_estacion ?? optional($nov->estacion)->id_estacion ?? null;
+            return empty($bId) && !empty($eId);
+        });
+        $tieneAlertasArriba = (collect($bicicletasAlerta ?? [])->isNotEmpty()) || ($novedadesSoloEstacion->isNotEmpty());
+    @endphp
+
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h2 class="text-xl font-bold text-gray-900">Centro de Alertas e Incidencias</h2>
-                <p class="text-xs text-gray-500 mt-0.5">Monitoreo en tiempo real de unidades que requieren atención técnica.</p>
+                <p class="text-xs text-gray-500 mt-0.5">Monitoreo en tiempo real de unidades y estaciones que requieren atención técnica.</p>
             </div>
-            <span class="bg-red-50 text-red-600 px-3 py-1 rounded-xl text-xs font-bold">
+            <span id="badge-alertas-activas" class="bg-red-50 text-red-600 px-3 py-1 rounded-xl text-xs font-bold">
                 {{ $alertasCriticasCount ?? 0 }} Activas
             </span>
         </div>
 
         <div class="space-y-3">
-            @forelse($bicicletasAlerta ?? [] as $bici)
+            @foreach($bicicletasAlerta ?? [] as $bici)
                 @php
                     $biciPk = $bici->id_bicicleta ?? $bici->id ?? 1;
                 @endphp
@@ -67,15 +76,53 @@
                         </a>
                     </div>
                 </div>
-            @empty
-                <div class="py-12 text-center">
+            @endforeach
+
+            @foreach($novedadesSoloEstacion as $novEst)
+                @php
+                    $novEstId = $novEst->id_novedad ?? $novEst->id ?? 0;
+                    $estNombre = optional($novEst->estacion)->nombre ?? ('Estación #' . ($novEst->estacion_id ?? $novEst->id_estacion));
+                @endphp
+                <div id="alerta-estacion-{{ $novEstId }}" class="alerta-estacion-item flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border border-amber-100 bg-amber-50/30 hover:bg-amber-50/50 transition">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs shrink-0">
+                            🏢
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-900">
+                                {{ $estNombre }} · {{ $novEst->tipo_novedad ?? 'Falla Estación' }} (#{{ $novEstId }})
+                            </h4>
+                            <p class="text-[11px] text-gray-500 mt-0.5">
+                                {{ $novEst->descripcion ?? 'Sin descripción' }}
+                                @if(!empty($novEst->created_at))
+                                    <span class="text-gray-400"> · {{ \Illuminate\Support\Carbon::parse($novEst->created_at)->format('d/m/Y H:i') }}</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <button
+                            type="button"
+                            onclick="marcarEstacionResuelta('{{ $novEstId }}')"
+                            class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-semibold transition shadow-sm cursor-pointer"
+                            title="Marcar incidencia de estación como resuelta"
+                        >
+                            ✓ Resolver
+                        </button>
+                    </div>
+                </div>
+            @endforeach
+
+            @if(!$tieneAlertasArriba)
+                <div id="estado-todo-en-orden" class="py-12 text-center">
                     <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3 text-lg">
                         ✓
                     </div>
                     <p class="text-xs font-bold text-gray-800">¡Todo en orden!</p>
-                    <p class="text-[11px] text-gray-400 mt-0.5">No hay alertas críticas ni bicicletas con batería baja en este momento.</p>
+                    <p class="text-[11px] text-gray-400 mt-0.5">No hay alertas críticas ni bicicletas o estaciones con novedades en este momento.</p>
                 </div>
-            @endforelse
+            @endif
         </div>
     </div>
 
@@ -109,9 +156,11 @@
                             $biciRel = $novedad->bicicleta;
                             $estadoBiciActual = optional($biciRel)->estado;
                             $bateriaBiciActual = optional($biciRel)->nivel_bateria;
+                            $novedadId = $novedad->id_novedad ?? ($novedad->id ?? '0');
+                            $esSoloEstacion = empty($biciPk) && !empty($estacionPk);
                         @endphp
-                        <tr class="hover:bg-gray-50/50 transition">
-                            <td class="py-4 px-4 font-bold text-gray-900">#{{ $novedad->id_novedad ?? ($novedad->id ?? '0') }}</td>
+                        <tr id="fila-novedad-{{ $novedadId }}" class="hover:bg-gray-50/50 transition">
+                            <td class="py-4 px-4 font-bold text-gray-900">#{{ $novedadId }}</td>
                             <td class="py-4 px-4 text-gray-600">
                                 @if($biciPk)
                                     <span class="block font-medium text-gray-800">
@@ -124,7 +173,7 @@
                                     </span>
                                 @endif
                                 @if($estacionPk)
-                                    <span class="block text-[11px] text-gray-400">
+                                    <span class="block text-[11px] {{ $biciPk ? 'text-gray-400' : 'font-medium text-gray-800' }}">
                                         🏢 {{ optional($novedad->estacion)->nombre ?? ('Estación #' . $estacionPk) }}
                                     </span>
                                 @elseif(!$biciPk)
@@ -144,7 +193,7 @@
                                 {{ !empty($novedad->created_at) ? \Illuminate\Support\Carbon::parse($novedad->created_at)->format('d/m/Y H:i') : 'N/A' }}
                             </td>
                             
-                            <!-- Columna de Acción Mecánica (misma lógica que Resolver / Recargar) -->
+                            <!-- Columna de Acción -->
                             <td class="py-4 px-4 text-right">
                                 @if($biciPk)
                                     <form action="{{ route('bicicletas.updateEstado', $biciPk) }}" method="POST" class="inline-block">
@@ -156,6 +205,15 @@
                                             ⚡ Resolver
                                         </button>
                                     </form>
+                                @elseif($esSoloEstacion)
+                                    <button
+                                        type="button"
+                                        onclick="marcarEstacionResuelta('{{ $novedadId }}')"
+                                        class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-semibold transition shadow-sm cursor-pointer"
+                                        title="Marcar incidencia de estación como resuelta"
+                                    >
+                                        ✓ Resolver
+                                    </button>
                                 @else
                                     <span class="text-[11px] text-gray-400 italic">N/A</span>
                                 @endif
@@ -172,4 +230,64 @@
             </table>
         </div>
     </div>
+
+    <script>
+        const CLAVE_ESTACIONES_RESUELTAS = 'jardin_bike_estaciones_resueltas';
+
+        function obtenerEstacionesResueltas() {
+            try {
+                return JSON.parse(localStorage.getItem(CLAVE_ESTACIONES_RESUELTAS) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function actualizarBadgeActivas(restar) {
+            const badge = document.getElementById('badge-alertas-activas');
+            if (!badge) return;
+            const match = badge.textContent.match(/(\d+)/);
+            if (!match) return;
+            const actual = parseInt(match[1], 10);
+            const nuevo = Math.max(0, actual - restar);
+            badge.textContent = nuevo + ' Activas';
+        }
+
+        function ocultarElementoPorId(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.remove();
+                return true;
+            }
+            return false;
+        }
+
+        function marcarEstacionResuelta(id) {
+            if (!id) return;
+            const resueltas = obtenerEstacionesResueltas();
+            const yaEstaba = resueltas.includes(String(id));
+            if (!yaEstaba) {
+                resueltas.push(String(id));
+                localStorage.setItem(CLAVE_ESTACIONES_RESUELTAS, JSON.stringify(resueltas));
+            }
+            const quitadaAlerta = ocultarElementoPorId('alerta-estacion-' + id);
+            ocultarElementoPorId('fila-novedad-' + id);
+            if (quitadaAlerta && !yaEstaba) {
+                actualizarBadgeActivas(1);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const resueltas = obtenerEstacionesResueltas();
+            let ocultadasEnCarga = 0;
+            resueltas.forEach(function (id) {
+                if (ocultarElementoPorId('alerta-estacion-' + id)) {
+                    ocultadasEnCarga++;
+                }
+                ocultarElementoPorId('fila-novedad-' + id);
+            });
+            if (ocultadasEnCarga > 0) {
+                actualizarBadgeActivas(ocultadasEnCarga);
+            }
+        });
+    </script>
 @endsection
