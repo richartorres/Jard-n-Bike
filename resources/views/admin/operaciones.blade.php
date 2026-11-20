@@ -82,7 +82,7 @@
             </form>
         </div>
 
-        <!-- Panel Derecho Limpio + Botón para Ver Historial Completo -->
+        <!-- Panel Derecho: Muestra el reporte recién creado o el aviso limpio + Botón Ver Historial -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 flex flex-col justify-between">
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -98,15 +98,46 @@
                     </button>
                 </div>
 
-                <div class="py-12 px-4 text-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50">
-                    <div class="w-11 h-11 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto mb-3 text-base font-bold">
-                        ✓
+                @php
+                    $ultimaId = session('ultima_novedad_id');
+                    $novedadReciente = $ultimaId
+                        ? collect($novedades ?? [])->first(function ($item) use ($ultimaId) {
+                            return (string) ($item->id_novedad ?? $item->id) === (string) $ultimaId;
+                        })
+                        : null;
+                @endphp
+
+                @if($novedadReciente)
+                    <div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                                ✓ Reporte registrado (#{{ $novedadReciente->id_novedad ?? $novedadReciente->id }})
+                            </span>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                {{ $novedadReciente->tipo_novedad }}
+                            </span>
+                        </div>
+
+                        <p class="text-sm font-semibold text-gray-800">
+                            {{ $novedadReciente->bicicleta_id ? 'Bici #' . $novedadReciente->bicicleta_id : 'Sin bici' }}
+                            <span class="text-xs font-normal text-gray-500">
+                                · {{ optional($novedadReciente->estacion)->nombre ?? 'Sin estación' }}
+                            </span>
+                        </p>
+
+                        <p class="text-sm text-gray-600 mt-1">{{ $novedadReciente->descripcion }}</p>
                     </div>
-                    <p class="text-sm font-semibold text-gray-800">No hay reportes por ahora</p>
-                    <p class="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
-                        El panel está listo para nuevos registros. Cuando quieras revisar incidencias anteriores, pulsa <span class="font-semibold text-gray-600">Ver historial</span>.
-                    </p>
-                </div>
+                @else
+                    <div class="py-12 px-4 text-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50">
+                        <div class="w-11 h-11 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto mb-3 text-base font-bold">
+                            ✓
+                        </div>
+                        <p class="text-sm font-semibold text-gray-800">No hay reportes por ahora</p>
+                        <p class="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+                            El panel está listo para nuevos registros. Cuando quieras revisar incidencias anteriores, pulsa <span class="font-semibold text-gray-600">Ver historial</span>.
+                        </p>
+                    </div>
+                @endif
             </div>
         </div>
 

@@ -58,7 +58,8 @@ class OperarioController extends Controller
                 $bicicleta->save();
             }
         }
-
+        
+        session()->flash('ultima_novedad_id', $novedad->id_novedad ?? $novedad->id);
         return back()->with('success', '¡Incidencia registrada correctamente!');
     }
 }
