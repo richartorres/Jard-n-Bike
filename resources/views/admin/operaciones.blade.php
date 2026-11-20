@@ -82,7 +82,7 @@
             </form>
         </div>
 
-        <!-- Panel Derecho: Muestra el reporte recién creado o el aviso limpio + Botón Ver Historial -->
+        <!-- Panel Derecho: Pendientes (Solo Bici, Solo Estación o Ambas) + Botón Ver Historial -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 flex flex-col justify-between">
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -99,33 +99,87 @@
                 </div>
 
                 @php
-                    $ultimaId = session('ultima_novedad_id');
-                    $novedadReciente = $ultimaId
-                        ? collect($novedades ?? [])->first(function ($item) use ($ultimaId) {
-                            return (string) ($item->id_novedad ?? $item->id) === (string) $ultimaId;
-                        })
-                        : null;
+                    $novedadesPendientes = collect($novedades ?? [])->filter(function ($item) {
+                        $tieneBici = !empty($item->bicicleta_id);
+                        $tieneEstacion = !empty($item->estacion_id);
+
+                        // Si no tiene ni bici ni estación, no se muestra aquí (queda en el modal)
+                        if (!$tieneBici && !$tieneEstacion) {
+                            return false;
+                        }
+
+                        // Caso 1 y Caso 3: Solo bici o Bici + Estación -> activa si la bici tiene problema
+                        if ($tieneBici) {
+                            $bici = $item->bicicleta ?? null;
+                            if (!$bici) {
+                                return false;
+                            }
+                            $estado = $bici->estado ?? '';
+                            $bateria = (int) ($bici->nivel_bateria ?? 100);
+
+                            return $estado !== 'Disponible' || $bateria < 20;
+                        }
+
+                        // Caso 2: Solo estación (sin bici)
+                        return true;
+                    });
                 @endphp
 
-                @if($novedadReciente)
-                    <div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40">
-                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-                            <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">
-                                ✓ Reporte registrado (#{{ $novedadReciente->id_novedad ?? $novedadReciente->id }})
-                            </span>
-                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                {{ $novedadReciente->tipo_novedad }}
-                            </span>
-                        </div>
+                @if($novedadesPendientes->isNotEmpty())
+                    <div class="space-y-3">
+                        @foreach($novedadesPendientes as $novPendiente)
+                            @php
+                                $tieneBici = !empty($novPendiente->bicicleta_id);
+                                $tieneEstacion = !empty($novPendiente->estacion_id);
+                                $biciPendiente = $novPendiente->bicicleta ?? null;
 
-                        <p class="text-sm font-semibold text-gray-800">
-                            {{ $novedadReciente->bicicleta_id ? 'Bici #' . $novedadReciente->bicicleta_id : 'Sin bici' }}
-                            <span class="text-xs font-normal text-gray-500">
-                                · {{ optional($novedadReciente->estacion)->nombre ?? 'Sin estación' }}
-                            </span>
-                        </p>
+                                if ($tieneBici && $tieneEstacion) {
+                                    $alcanceLabel = 'Bici + Estación';
+                                } elseif ($tieneBici) {
+                                    $alcanceLabel = 'Solo Bici';
+                                } else {
+                                    $alcanceLabel = 'Solo Estación';
+                                }
+                            @endphp
+                            <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/40">
+                                <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-xs font-bold text-amber-800 uppercase tracking-wider">
+                                            ⚠️ Reporte pendiente (#{{ $novPendiente->id_novedad ?? $novPendiente->id }})
+                                        </span>
+                                        <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-white text-gray-700 border border-amber-200">
+                                            {{ $alcanceLabel }}
+                                        </span>
+                                    </div>
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                                        {{ $novPendiente->tipo_novedad }}
+                                    </span>
+                                </div>
 
-                        <p class="text-sm text-gray-600 mt-1">{{ $novedadReciente->descripcion }}</p>
+                                <p class="text-sm font-semibold text-gray-800">
+                                    @if($tieneBici)
+                                        🚲 Bici #{{ $novPendiente->bicicleta_id }}
+                                        @if($biciPendiente)
+                                            <span class="text-xs font-semibold text-amber-700">
+                                                ({{ $biciPendiente->estado }} · {{ $biciPendiente->nivel_bateria }}%)
+                                            </span>
+                                        @endif
+                                    @endif
+
+                                    @if($tieneBici && $tieneEstacion)
+                                        <span class="text-xs font-normal text-gray-500"> · </span>
+                                    @endif
+
+                                    @if($tieneEstacion)
+                                        <span class="text-xs font-semibold text-gray-700">
+                                            🏢 {{ optional($novPendiente->estacion)->nombre ?? ('Estación #' . $novPendiente->estacion_id) }}
+                                        </span>
+                                    @endif
+                                </p>
+
+                                <p class="text-sm text-gray-600 mt-1">{{ $novPendiente->descripcion }}</p>
+                            </div>
+                        @endforeach
                     </div>
                 @else
                     <div class="py-12 px-4 text-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50">
