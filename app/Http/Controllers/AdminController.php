@@ -259,6 +259,20 @@ public function exportarReportePdf(Request $request)
             return redirect()->route('mapa')->with('error', 'Acceso no autorizado.');
         }
 
+        $novedad = NovedadCampo::where('id_novedad', $id)->orWhere('id', $id)->first();
+        $estacionId = $novedad->estacion_id ?? $novedad->id_estacion ?? null;
+
+        if ($estacionId) {
+            try {
+                $estacion = Estacion::where('id_estacion', $estacionId)->orWhere('id', $estacionId)->first();
+                if ($estacion && \Illuminate\Support\Facades\Schema::hasColumn($estacion->getTable(), 'estado')) {
+                    $estacion->update(['estado' => 'Disponible']);
+                }
+            } catch (\Throwable $e) {
+                // Si el modelo o columna varía, no bloquea la resolución
+            }
+        }
+
         $resueltas = collect(session('estaciones_resueltas', []))
             ->map(fn ($v) => (string) $v)
             ->push((string) $id)
@@ -272,7 +286,7 @@ public function exportarReportePdf(Request $request)
             return response()->json(['ok' => true, 'id' => (string) $id]);
         }
 
-        return back()->with('success', 'Incidencia de estación marcada como resuelta.');
+        return back()->with('success', 'Incidencia de estación marcada como resuelta y estación disponible.');
     }
 
 

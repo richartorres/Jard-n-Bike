@@ -99,22 +99,19 @@
                 </div>
 
                 @php
-                    $estacionesViejasResueltas = collect(['11', '13', '15']);
                     $estacionesResueltasIds = collect(session('estaciones_resueltas', []))
-                        ->map(fn ($v) => (string) $v)
-                        ->merge($estacionesViejasResueltas)
-                        ->unique();
+                        ->map(fn ($v) => (string) $v);
 
                     $novedadesPendientes = collect($novedades ?? [])->filter(function ($item) use ($estacionesResueltasIds) {
                         $tieneBici = !empty($item->bicicleta_id);
                         $tieneEstacion = !empty($item->estacion_id);
 
-                        // Si no tiene ni bici ni estación, no se muestra aquí (queda en el modal)
+                        // Si no tiene ni bici ni estación, queda solo en el historial modal
                         if (!$tieneBici && !$tieneEstacion) {
                             return false;
                         }
 
-                        // Caso 1 y Caso 3: Solo bici o Bici + Estación -> activa si la bici tiene problema
+                        // Caso 1 y Caso 3: Solo bici o Bici + Estación -> pendiente si la bici tiene problema
                         if ($tieneBici) {
                             $bici = $item->bicicleta ?? null;
                             if (!$bici) {
@@ -126,9 +123,21 @@
                             return $estado !== 'Disponible' || $bateria < 20;
                         }
 
-                        // Caso 2: Solo estación (sin bici) -> oculta si ya fue marcada resuelta en sesión o en lista vieja
+                        // Caso 2: Solo estación -> pendiente si no fue resuelta en sesión
+                        // y si la estación tiene estado definido, que no esté 'Disponible'
                         $novId = (string) ($item->id_novedad ?? $item->id ?? '');
-                        return !$estacionesResueltasIds->contains($novId);
+                        if ($estacionesResueltasIds->contains($novId)) {
+                            return false;
+                        }
+
+                        $estacion = $item->estacion ?? null;
+                        $estadoEstacion = $estacion->estado ?? null;
+
+                        if (!empty($estadoEstacion) && strtolower((string) $estadoEstacion) === 'disponible') {
+                            return false;
+                        }
+
+                        return true;
                     });
                 @endphp
 
@@ -139,6 +148,7 @@
                                 $tieneBici = !empty($novPendiente->bicicleta_id);
                                 $tieneEstacion = !empty($novPendiente->estacion_id);
                                 $biciPendiente = $novPendiente->bicicleta ?? null;
+                                $estacionPendiente = $novPendiente->estacion ?? null;
 
                                 if ($tieneBici && $tieneEstacion) {
                                     $alcanceLabel = 'Bici + Estación';
@@ -179,7 +189,10 @@
 
                                     @if($tieneEstacion)
                                         <span class="text-xs font-semibold text-gray-700">
-                                            🏢 {{ optional($novPendiente->estacion)->nombre ?? ('Estación #' . $novPendiente->estacion_id) }}
+                                            🏢 {{ optional($estacionPendiente)->nombre ?? ('Estación #' . $novPendiente->estacion_id) }}
+                                            @if(!empty($estacionPendiente->estado))
+                                                <span class="text-amber-700 font-semibold">({{ $estacionPendiente->estado }})</span>
+                                            @endif
                                         </span>
                                     @endif
                                 </p>
