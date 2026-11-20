@@ -111,29 +111,29 @@
                             return false;
                         }
 
-                        // Caso 1 y Caso 3: Solo bici o Bici + Estación -> pendiente si la bici tiene problema
+                        // Caso 1 y 3: Solo bici o Bici + Estación -> pendiente si la bici tiene problema
                         if ($tieneBici) {
                             $bici = $item->bicicleta ?? null;
                             if (!$bici) {
                                 return false;
                             }
-                            $estado = $bici->estado ?? '';
+                            $estado = strtolower(trim((string) ($bici->estado ?? '')));
                             $bateria = (int) ($bici->nivel_bateria ?? 100);
 
-                            return $estado !== 'Disponible' || $bateria < 20;
+                            return $estado !== 'disponible' || $bateria < 20;
                         }
 
-                        // Caso 2: Solo estación -> pendiente si no fue resuelta en sesión
-                        // y si la estación tiene estado definido, que no esté 'Disponible'
+                        // Caso 2: Solo estación -> si ya fue resuelta en esta sesión, no se muestra
                         $novId = (string) ($item->id_novedad ?? $item->id ?? '');
                         if ($estacionesResueltasIds->contains($novId)) {
                             return false;
                         }
 
+                        // Si la estación ya está 'Activa' o 'Disponible' en BD, no es un reporte pendiente por resolver
                         $estacion = $item->estacion ?? null;
-                        $estadoEstacion = $estacion->estado ?? null;
+                        $estadoEstacion = strtolower(trim((string) ($estacion->estado ?? '')));
 
-                        if (!empty($estadoEstacion) && strtolower((string) $estadoEstacion) === 'disponible') {
+                        if (in_array($estadoEstacion, ['activa', 'disponible'], true)) {
                             return false;
                         }
 
