@@ -118,28 +118,34 @@ class AdminController extends Controller
         return view('admin.usuarios', compact('usuarios'));
     }
 
-public function alertas()
-{
-    if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'operario'])) {
-        return redirect()->route('mapa')->with('error', 'Acceso no autorizado.');
-    }
 
-    $bicicletasAlerta = Bicicleta::where('nivel_bateria', '<', 20)
-        ->orWhere('estado', 'Mantenimiento')
-        ->get();
+    
+    public function alertas()
+    {
+        if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'operario'])) {
+            return redirect()->route('mapa')->with('error', 'Acceso no autorizado.');
+        }
 
-    $alertasCriticasCount = $bicicletasAlerta->count();
-
-    try {
-        $novedadesCampo = NovedadCampo::with(['bicicleta', 'estacion', 'usuario'])
-            ->orderByDesc('id_novedad')
+        $bicicletasAlerta = Bicicleta::where('nivel_bateria', '<', 20)
+            ->orWhere('estado', 'Mantenimiento')
             ->get();
-    } catch (\Throwable $e) {
-        $novedadesCampo = NovedadCampo::orderByDesc('id_novedad')->get();
-    }
 
-    return view('admin.alertas', compact('bicicletasAlerta', 'alertasCriticasCount', 'novedadesCampo'));
-}
+        $alertasCriticasCount = $bicicletasAlerta->count();
+
+        try {
+            $novedadesCampo = NovedadCampo::with(['bicicleta', 'estacion', 'usuario'])
+                ->whereHas('bicicleta', function ($q) {
+                    $q->where('nivel_bateria', '<', 20)
+                        ->orWhere('estado', 'Mantenimiento');
+                })
+                ->orderByDesc('id_novedad')
+                ->get();
+        } catch (\Throwable $e) {
+            $novedadesCampo = NovedadCampo::orderByDesc('id_novedad')->get();
+        }
+
+        return view('admin.alertas', compact('bicicletasAlerta', 'alertasCriticasCount', 'novedadesCampo'));
+    }
 
     /**
      * Cambiar el rol de un usuario (Cliente <-> Admin)
