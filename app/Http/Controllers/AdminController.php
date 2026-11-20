@@ -131,6 +131,7 @@ class AdminController extends Controller
             ->get();
 
         $novedadesEstacionCount = 0;
+        $novedadesPorBici = collect();
 
         try {
             $novedadesCampo = NovedadCampo::with(['bicicleta', 'estacion', 'usuario'])
@@ -146,6 +147,11 @@ class AdminController extends Controller
                 ->orderByDesc('id_novedad')
                 ->get();
 
+            $novedadesPorBici = $novedadesCampo
+                ->filter(fn ($item) => !empty($item->bicicleta_id))
+                ->groupBy('bicicleta_id')
+                ->map(fn ($grupo) => $grupo->first());
+
             $novedadesEstacionCount = $novedadesCampo->filter(function ($item) {
                 return empty($item->bicicleta_id) && !empty($item->estacion_id);
             })->count();
@@ -155,7 +161,12 @@ class AdminController extends Controller
 
         $alertasCriticasCount = $bicicletasAlerta->count() + $novedadesEstacionCount;
 
-        return view('admin.alertas', compact('bicicletasAlerta', 'alertasCriticasCount', 'novedadesCampo'));
+        return view('admin.alertas', compact(
+            'bicicletasAlerta',
+            'alertasCriticasCount',
+            'novedadesCampo',
+            'novedadesPorBici'
+        ));
     }
 
 
