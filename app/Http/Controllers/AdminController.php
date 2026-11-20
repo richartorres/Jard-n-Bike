@@ -214,8 +214,22 @@ class AdminController extends Controller
      */
     public function reporteFinanciero(Request $request)
     {
-        $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
-        $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
+        $hoy = now('America/Bogota')->toDateString();
+
+        $fechaInicio = $request->input('fecha_inicio', now('America/Bogota')->startOfMonth()->toDateString());
+        $fechaFin = $request->input('fecha_fin', $hoy);
+
+        if ($fechaInicio > $hoy) {
+            $fechaInicio = $hoy;
+        }
+
+        if ($fechaFin > $hoy) {
+            $fechaFin = $hoy;
+        }
+
+        if ($fechaInicio > $fechaFin) {
+            $fechaInicio = $fechaFin;
+        }
 
         $resumen = DB::select('CALL sp_reporte_financiero_rango(?, ?)', [$fechaInicio, $fechaFin]);
         $historico = DB::select('CALL sp_reporte_historico_diario(?, ?)', [$fechaInicio, $fechaFin]);
@@ -225,13 +239,28 @@ class AdminController extends Controller
             'historico' => $historico,
             'fechaInicio' => $fechaInicio,
             'fechaFin' => $fechaFin,
+            'fechaMaxima' => $hoy,
         ]);
     }
 
     public function exportarReportePdf(Request $request)
     {
-        $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
-        $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
+        $hoy = now('America/Bogota')->toDateString();
+
+        $fechaInicio = $request->input('fecha_inicio', now('America/Bogota')->startOfMonth()->toDateString());
+        $fechaFin = $request->input('fecha_fin', $hoy);
+
+        if ($fechaInicio > $hoy) {
+            $fechaInicio = $hoy;
+        }
+
+        if ($fechaFin > $hoy) {
+            $fechaFin = $hoy;
+        }
+
+        if ($fechaInicio > $fechaFin) {
+            $fechaInicio = $fechaFin;
+        }
 
         $resumen = DB::select('CALL sp_reporte_financiero_rango(?, ?)', [$fechaInicio, $fechaFin]);
         $historico = DB::select('CALL sp_reporte_historico_diario(?, ?)', [$fechaInicio, $fechaFin]);

@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $fechaMax = $fechaMaxima ?? \Carbon\Carbon::now('America/Bogota')->toDateString();
+@endphp
+
 <div class="max-w-7xl mx-auto px-4 py-8">
     {{-- Encabezado y Botón de Exportación --}}
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
@@ -9,13 +13,13 @@
             <h1 class="text-3xl font-extrabold text-slate-900">Reporte Financiero Histórico</h1>
         </div>
         <div class="flex items-center gap-3">
-            <button onclick="notificarExportacion()" class="inline-flex items-center gap-2 bg-emerald-900 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl shadow transition">
-                📊 Generar Alerta de Resumen
-            </button>
-            <a href="{{ route('admin.reportes.pdf', ['fecha_inicio' => $fechaInicio, 'fecha_fin' => $fechaFin]) }}"
-               class="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl shadow transition">
+            <button type="button"
+                    id="btnDescargarPdf"
+                    onclick="descargarReportePdfConAlerta(event, this.dataset.url)"
+                    data-url="{{ route('admin.reportes.pdf', ['fecha_inicio' => $fechaInicio, 'fecha_fin' => $fechaFin]) }}"
+                    class="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl shadow transition cursor-pointer">
                 📄 Descargar Reporte PDF
-            </a>
+            </button>
         </div>
     </div>
 
@@ -23,33 +27,33 @@
     <form method="GET" action="{{ route('admin.reportes') }}" id="filtroForm" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-8 flex flex-wrap items-end gap-4">
         <div>
             <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Desde</label>
-            <input type="date" name="fecha_inicio" value="{{ $fechaInicio }}" class="border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500">
+            <input type="date"
+                   id="fechaInicioInput"
+                   name="fecha_inicio"
+                   value="{{ $fechaInicio }}"
+                   max="{{ $fechaMax }}"
+                   class="border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500">
         </div>
         <div>
             <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Hasta</label>
-            <input type="date" name="fecha_fin" value="{{ $fechaFin }}" class="border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500">
+            <input type="date"
+                   id="fechaFinInput"
+                   name="fecha_fin"
+                   value="{{ $fechaFin }}"
+                   max="{{ $fechaMax }}"
+                   class="border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500">
         </div>
-        <button type="submit" class="bg-emerald-900 hover:bg-emerald-800 text-white font-semibold px-6 py-2 rounded-xl text-sm transition shadow-sm">
+        <button type="submit" class="bg-emerald-900 hover:bg-emerald-800 text-white font-semibold px-6 py-2 rounded-xl text-sm transition shadow-sm cursor-pointer">
             Aplicar Rango
         </button>
     </form>
 
     {{-- Tarjetas KPI Estadísticas --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {{-- Tarjeta KPI de Ingresos Totales Optimizada --}}
-        <div class="bg-emerald-950 text-white p-6 rounded-2xl shadow-md flex items-center justify-between col-span-1 md:col-span-1 overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-emerald-950 text-white p-6 rounded-2xl shadow-md flex items-center justify-between overflow-hidden">
             <div class="min-w-0 flex-1 pr-3">
                 <p class="text-xs font-bold uppercase text-emerald-300 tracking-wider">Ingresos Totales</p>
                 <p class="text-2xl sm:text-3xl font-extrabold mt-2 truncate">${{ number_format($data->ingresos_generados ?? 0, 0, ',', '.') }}</p>
-                <p class="text-xs text-emerald-400 mt-2">💰 Recaudación neta verificada</p>
-            </div>
-            <div class="bg-emerald-900/60 p-3.5 rounded-2xl text-amber-400 text-xl shrink-0">📈</div>
-        </div>
-
-        <div class="bg-emerald-950 text-white p-6 rounded-2xl shadow-md flex items-center justify-between">
-            <div class="overflow-hidden pr-2">
-                <p class="text-xs font-bold uppercase text-emerald-300">Ingresos Totales</p>
-                <p class="text-3xl font-extrabold mt-2 tracking-tight">${{ number_format($data->ingresos_generados ?? 0, 0, ',', '.') }}</p>
                 <p class="text-xs text-emerald-400 mt-2">💰 Recaudación neta verificada</p>
             </div>
             <div class="bg-emerald-900/60 p-3.5 rounded-2xl text-amber-400 text-xl shrink-0">📈</div>
@@ -113,50 +117,86 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    const fechaMaximaPermitida = "{{ $fechaMax }}";
+    const filtroForm = document.getElementById('filtroForm');
+    const fechaInicioInput = document.getElementById('fechaInicioInput');
+    const fechaFinInput = document.getElementById('fechaFinInput');
+
+    if (filtroForm && fechaInicioInput && fechaFinInput) {
+        filtroForm.addEventListener('submit', function (event) {
+            if (fechaInicioInput.value > fechaMaximaPermitida) {
+                fechaInicioInput.value = fechaMaximaPermitida;
+            }
+            if (fechaFinInput.value > fechaMaximaPermitida) {
+                fechaFinInput.value = fechaMaximaPermitida;
+            }
+            if (fechaInicioInput.value && fechaFinInput.value && fechaInicioInput.value > fechaFinInput.value) {
+                event.preventDefault();
+                Swal.fire({
+                    title: 'Rango de fechas inválido',
+                    text: 'La fecha "Desde" no puede ser mayor que la fecha "Hasta".',
+                    icon: 'warning',
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#064e3b'
+                });
+            }
+        });
+    }
+
     // Gráfica de Ingresos
     const historicoData = {!! json_encode($historico) !!};
     const labels = historicoData.map(item => item.fecha);
     const ingresos = historicoData.map(item => item.ingresos);
 
-        const ctx = document.getElementById('graficaIngresos').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Ingresos ($ COP)',
-                    data: ingresos,
-                    backgroundColor: '#064e3b',
-                    borderRadius: 8,
-                    hoverBackgroundColor: '#047857'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { 
-                    y: { 
-                        beginAtZero: true, 
-                        grid: { color: '#f1f5f9' } 
-                    },
-                    x: { 
-                        grid: { display: false },
-                        ticks: {
-                            maxRotation: 45, // Rota las fechas automáticamente si se acumulan
-                            minRotation: 0,
-                            autoSkip: true,  // Oculta fechas salteadas si hay demasiadas para evitar amontonamiento
-                            maxTicksLimit: 10 // Límite máximo de fechas visibles simultáneamente
-                        }
+    const ctx = document.getElementById('graficaIngresos').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Ingresos ($ COP)',
+                data: ingresos,
+                backgroundColor: '#064e3b',
+                borderRadius: 8,
+                hoverBackgroundColor: '#047857'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#f1f5f9' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 10
                     }
                 }
             }
-        });
-    // Función de Alerta Elegante con SweetAlert2
-    function notificarExportacion() {
+        }
+    });
+
+    // Descarga del PDF + Alerta con SweetAlert2
+    function descargarReportePdfConAlerta(event, url) {
+        if (event) event.preventDefault();
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', '');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
         Swal.fire({
-            title: '¡Resumen Financiero Listado!',
-            text: 'Los datos del rango seleccionado se encuentran listos para auditoría o exportación.',
+            title: '¡PDF generado con éxito!',
+            text: 'Tu reporte financiero del rango seleccionado se ha descargado correctamente.',
             icon: 'success',
             confirmButtonText: 'Entendido',
             confirmButtonColor: '#064e3b',
