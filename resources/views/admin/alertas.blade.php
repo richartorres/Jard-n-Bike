@@ -21,14 +21,21 @@
     @endif
 
     @php
-        $estacionesResueltasServer = collect(session('estaciones_resueltas', []))->map(fn ($v) => (string) $v);
-
-        $novedadesSoloEstacion = collect($novedadesCampo ?? [])->filter(function ($nov) use ($estacionesResueltasServer) {
-            $bId = $nov->bicicleta_id ?? $nov->id_bicicleta ?? optional($nov->bicicleta)->id_bicicleta ?? null;
-            $eId = $nov->estacion_id ?? $nov->id_estacion ?? optional($nov->estacion)->id_estacion ?? null;
-            $nId = (string) ($nov->id_novedad ?? $nov->id ?? '');
-            return empty($bId) && !empty($eId) && !$estacionesResueltasServer->contains($nId);
-        });
+        $novedadesSoloEstacion = collect($novedadesCampo ?? [])
+            ->filter(function ($nov) {
+                $bId = $nov->bicicleta_id ?? $nov->id_bicicleta ?? optional($nov->bicicleta)->id_bicicleta ?? null;
+                $eId = $nov->estacion_id ?? $nov->id_estacion ?? optional($nov->estacion)->id_estacion ?? null;
+                if (!empty($bId) || empty($eId)) {
+                    return false;
+                }
+                $estadoEst = strtolower(trim((string) (optional($nov->estacion)->estado ?? '')));
+                return $estadoEst !== 'activa';
+            })
+            ->sortByDesc(fn ($nov) => (int) ($nov->id_novedad ?? $nov->id ?? 0))
+            ->unique(function ($nov) {
+                return (string) ($nov->estacion_id ?? $nov->id_estacion ?? optional($nov->estacion)->id_estacion);
+            })
+            ->values();
 
         $novedadesPorBiciMap = collect($novedadesPorBici ?? []);
         $bicisList = collect($bicicletasAlerta ?? []);

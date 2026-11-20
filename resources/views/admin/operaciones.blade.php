@@ -99,10 +99,27 @@
                 </div>
 
                 @php
-                    $estacionesResueltasIds = collect(session('estaciones_resueltas', []))
-                        ->map(fn ($v) => (string) $v);
+                    $coleccionNovedades = collect($novedades ?? []);
 
-                    $novedadesPendientes = collect($novedades ?? [])->filter(function ($item) use ($estacionesResueltasIds) {
+                    // Último reporte por bicicleta (para no repetir reportes viejos de una misma bici)
+                    $ultimaNovedadPorBici = $coleccionNovedades
+                        ->filter(fn ($item) => !empty($item->bicicleta_id))
+                        ->sortByDesc(fn ($item) => (int) ($item->id_novedad ?? $item->id ?? 0))
+                        ->groupBy(fn ($item) => (string) $item->bicicleta_id)
+                        ->map(fn ($grupo) => (string) ($grupo->first()->id_novedad ?? $grupo->first()->id ?? ''));
+
+                    // Último reporte por estación (para casos de Solo Estación)
+                    $ultimaNovedadPorEstacion = $coleccionNovedades
+                        ->filter(fn ($item) => empty($item->bicicleta_id) && !empty($item->estacion_id))
+                        ->sortByDesc(fn ($item) => (int) ($item->id_novedad ?? $item->id ?? 0))
+                        ->groupBy(fn ($item) => (string) $item->estacion_id)
+                        ->map(fn ($grupo) => (string) ($grupo->first()->id_novedad ?? $grupo->first()->id ?? ''));
+
+                    $novedadesPendientes = $coleccionNovedades->filter(function ($item) use (
+                        $ultimaNovedadPorBici,
+                        $ultimaNovedadPorEstacion
+                    ) {
+                        $novId = (string) ($item->id_novedad ?? $item->id ?? '');
                         $tieneBici = !empty($item->bicicleta_id);
                         $tieneEstacion = !empty($item->estacion_id);
 
@@ -111,33 +128,38 @@
                             return false;
                         }
 
-                        // Caso 1 y 3: Solo bici o Bici + Estación -> pendiente si la bici tiene problema
+                        // Caso 1 y Caso 3: Bici o Bici + Estación -> solo el último reporte de esa bici si sigue con problema
                         if ($tieneBici) {
+                            $biciId = (string) $item->bicicleta_id;
+                            if ($ultimaNovedadPorBici->get($biciId) !== $novId) {
+                                return false;
+                            }
+
                             $bici = $item->bicicleta ?? null;
                             if (!$bici) {
                                 return false;
                             }
-                            $estado = strtolower(trim((string) ($bici->estado ?? '')));
+
+                            $estadoBici = strtolower(trim((string) ($bici->estado ?? '')));
                             $bateria = (int) ($bici->nivel_bateria ?? 100);
 
-                            return $estado !== 'disponible' || $bateria < 20;
+                            return $estadoBici !== 'disponible' || $bateria < 20;
                         }
 
-                        // Caso 2: Solo estación -> si ya fue resuelta en esta sesión, no se muestra
-                        $novId = (string) ($item->id_novedad ?? $item->id ?? '');
-                        if ($estacionesResueltasIds->contains($novId)) {
+                        // Caso 2: Solo Estación -> solo el último reporte de esa estación mientras su estado en BD no sea 'Activa'
+                        $estId = (string) $item->estacion_id;
+                        if ($ultimaNovedadPorEstacion->get($estId) !== $novId) {
                             return false;
                         }
 
-                        // Si la estación ya está 'Activa' o 'Disponible' en BD, no es un reporte pendiente por resolver
                         $estacion = $item->estacion ?? null;
+                        if (!$estacion) {
+                            return false;
+                        }
+
                         $estadoEstacion = strtolower(trim((string) ($estacion->estado ?? '')));
 
-                        if (in_array($estadoEstacion, ['activa', 'disponible'], true)) {
-                            return false;
-                        }
-
-                        return true;
+                        return $estadoEstacion !== 'activa';
                     });
                 @endphp
 

@@ -14,7 +14,8 @@ class OperarioController extends Controller
     public function index()
     {
         $novedades = NovedadCampo::with(['bicicleta', 'estacion', 'usuario'])
-            ->orderBy('created_at', 'desc')
+            ->orderByDesc('id_novedad')
+            ->orderByDesc('created_at')
             ->get();
 
         $bicicletas = Bicicleta::all();
@@ -35,10 +36,11 @@ class OperarioController extends Controller
         $userId = Auth::id() ?? User::value('id');
 
         $bicicletaId = $request->filled('bicicleta_id') ? (int) $request->bicicleta_id : null;
+        $estacionId  = $request->filled('estacion_id') ? (int) $request->estacion_id : null;
 
         $novedad = NovedadCampo::create([
             'bicicleta_id' => $bicicletaId,
-            'estacion_id'  => $request->filled('estacion_id') ? (int) $request->estacion_id : null,
+            'estacion_id'  => $estacionId,
             'user_id'      => $userId,
             'tipo_novedad' => $request->tipo_novedad,
             'descripcion'  => $request->descripcion,
@@ -58,7 +60,16 @@ class OperarioController extends Controller
                 $bicicleta->save();
             }
         }
-        
+
+        if ($estacionId) {
+            $estacion = Estacion::where('id_estacion', $estacionId)->first();
+
+            if ($estacion) {
+                $estacion->estado = 'Inactiva';
+                $estacion->save();
+            }
+        }
+
         session()->flash('ultima_novedad_id', $novedad->id_novedad ?? $novedad->id);
         return back()->with('success', '¡Incidencia registrada correctamente!');
     }
